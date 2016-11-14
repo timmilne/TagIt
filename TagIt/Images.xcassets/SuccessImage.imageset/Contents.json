@@ -3,17 +3,17 @@
     {
       "idiom" : "universal",
       "scale" : "1x",
-      "filename" : "RapiTagSuccessIcon-01.png"
+      "filename" : "SuccessIcon-01.png"
     },
     {
       "idiom" : "universal",
       "scale" : "2x",
-      "filename" : "RapiTagSuccessIcon-02.png"
+      "filename" : "SuccessIcon-02.png"
     },
     {
       "idiom" : "universal",
       "scale" : "3x",
-      "filename" : "RapiTagSuccessIcon-03.png"
+      "filename" : "SuccessIcon-03.png"
     }
   ],
   "info" : {

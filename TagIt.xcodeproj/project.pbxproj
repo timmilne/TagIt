@@ -12,7 +12,7 @@
 		B702446F1B018CF600B9B47F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B702446D1B018CF600B9B47F /* Main.storyboard */; };
 		B70244711B018CF600B9B47F /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B70244701B018CF600B9B47F /* Images.xcassets */; };
 		B70244741B018CF600B9B47F /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = B70244721B018CF600B9B47F /* LaunchScreen.xib */; };
-		B70244801B018CF600B9B47F /* RapiTagTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B702447F1B018CF600B9B47F /* RapiTagTests.m */; };
+		B70244801B018CF600B9B47F /* TagItTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B702447F1B018CF600B9B47F /* TagItTests.m */; };
 		B702448B1B018D7700B9B47F /* EncoderViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B702448A1B018D7700B9B47F /* EncoderViewController.m */; };
 		B7117D401B33362A00968426 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = B7117D3F1B33362A00968426 /* NavigationController.m */; };
 		B77C52E81B7F0B200049D701 /* ConverterTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B77C52E71B7F0B200049D701 /* ConverterTests.m */; };
@@ -34,12 +34,12 @@
 			containerPortal = B70244581B018CF600B9B47F /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = B702445F1B018CF600B9B47F;
-			remoteInfo = RapiTag;
+			remoteInfo = TagIt;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		B70244601B018CF600B9B47F /* RapiTag.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RapiTag.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B70244601B018CF600B9B47F /* TagIt.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TagIt.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B70244641B018CF600B9B47F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B70244651B018CF600B9B47F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B70244671B018CF600B9B47F /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -47,9 +47,9 @@
 		B702446E1B018CF600B9B47F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B70244701B018CF600B9B47F /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		B70244731B018CF600B9B47F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		B70244791B018CF600B9B47F /* RapiTagTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RapiTagTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B70244791B018CF600B9B47F /* TagIt.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TagIt.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B702447E1B018CF600B9B47F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B702447F1B018CF600B9B47F /* RapiTagTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RapiTagTests.m; sourceTree = "<group>"; };
+		B702447F1B018CF600B9B47F /* TagItTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TagItTests.m; sourceTree = "<group>"; };
 		B70244891B018D7700B9B47F /* EncoderViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EncoderViewController.h; sourceTree = "<group>"; };
 		B702448A1B018D7700B9B47F /* EncoderViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EncoderViewController.m; sourceTree = "<group>"; };
 		B7117D3E1B33362A00968426 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
@@ -111,8 +111,8 @@
 		B70244571B018CF600B9B47F = {
 			isa = PBXGroup;
 			children = (
-				B70244621B018CF600B9B47F /* RapiTag */,
-				B702447C1B018CF600B9B47F /* RapiTagTests */,
+				B70244621B018CF600B9B47F /* TagIt */,
+				B702447C1B018CF600B9B47F /* TagItTests */,
 				B7D5C9BB1BCE0C4B00EDCCC0 /* EPCEncoder */,
 				B70244611B018CF600B9B47F /* Products */,
 				B7F7714D1C1B851B006D8FF9 /* Scanner */,
@@ -123,13 +123,13 @@
 		B70244611B018CF600B9B47F /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B70244601B018CF600B9B47F /* RapiTag.app */,
-				B70244791B018CF600B9B47F /* RapiTagTests.xctest */,
+				B70244601B018CF600B9B47F /* TagIt.app */,
+				B70244791B018CF600B9B47F /* TagIt.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B70244621B018CF600B9B47F /* RapiTag */ = {
+		B70244621B018CF600B9B47F /* TagIt */ = {
 			isa = PBXGroup;
 			children = (
 				B70244671B018CF600B9B47F /* AppDelegate.h */,
@@ -143,7 +143,7 @@
 				B70244721B018CF600B9B47F /* LaunchScreen.xib */,
 				B70244631B018CF600B9B47F /* Supporting Files */,
 			);
-			path = RapiTag;
+			path = TagIt;
 			sourceTree = "<group>";
 		};
 		B70244631B018CF600B9B47F /* Supporting Files */ = {
@@ -155,15 +155,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		B702447C1B018CF600B9B47F /* RapiTagTests */ = {
+		B702447C1B018CF600B9B47F /* TagItTests */ = {
 			isa = PBXGroup;
 			children = (
 				B77C52E71B7F0B200049D701 /* ConverterTests.m */,
 				B77C52E91B7F0B270049D701 /* EPCEncoderTests.m */,
-				B702447F1B018CF600B9B47F /* RapiTagTests.m */,
+				B702447F1B018CF600B9B47F /* TagItTests.m */,
 				B702447D1B018CF600B9B47F /* Supporting Files */,
 			);
-			path = RapiTagTests;
+			path = TagItTests;
 			sourceTree = "<group>";
 		};
 		B702447D1B018CF600B9B47F /* Supporting Files */ = {
@@ -230,9 +230,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B702445F1B018CF600B9B47F /* RapiTag */ = {
+		B702445F1B018CF600B9B47F /* TagIt */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B70244831B018CF600B9B47F /* Build configuration list for PBXNativeTarget "RapiTag" */;
+			buildConfigurationList = B70244831B018CF600B9B47F /* Build configuration list for PBXNativeTarget "TagIt" */;
 			buildPhases = (
 				B702445C1B018CF600B9B47F /* Sources */,
 				B702445D1B018CF600B9B47F /* Frameworks */,
@@ -242,14 +242,14 @@
 			);
 			dependencies = (
 			);
-			name = RapiTag;
-			productName = RapiTag;
-			productReference = B70244601B018CF600B9B47F /* RapiTag.app */;
+			name = TagIt;
+			productName = TagIt;
+			productReference = B70244601B018CF600B9B47F /* TagIt.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B70244781B018CF600B9B47F /* RapiTagTests */ = {
+		B70244781B018CF600B9B47F /* TagItTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B70244861B018CF600B9B47F /* Build configuration list for PBXNativeTarget "RapiTagTests" */;
+			buildConfigurationList = B70244861B018CF600B9B47F /* Build configuration list for PBXNativeTarget "TagItTests" */;
 			buildPhases = (
 				B70244751B018CF600B9B47F /* Sources */,
 				B70244761B018CF600B9B47F /* Frameworks */,
@@ -260,9 +260,9 @@
 			dependencies = (
 				B702447B1B018CF600B9B47F /* PBXTargetDependency */,
 			);
-			name = RapiTagTests;
-			productName = RapiTagTests;
-			productReference = B70244791B018CF600B9B47F /* RapiTagTests.xctest */;
+			name = TagItTests;
+			productName = TagItTests;
+			productReference = B70244791B018CF600B9B47F /* TagIt.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -276,7 +276,7 @@
 				TargetAttributes = {
 					B702445F1B018CF600B9B47F = {
 						CreatedOnToolsVersion = 6.2;
-						DevelopmentTeam = 56H62Y5EBN;
+						DevelopmentTeam = 6B6T6M8GHY;
 					};
 					B70244781B018CF600B9B47F = {
 						CreatedOnToolsVersion = 6.2;
@@ -284,7 +284,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B702445B1B018CF600B9B47F /* Build configuration list for PBXProject "RapiTag" */;
+			buildConfigurationList = B702445B1B018CF600B9B47F /* Build configuration list for PBXProject "TagIt" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -297,8 +297,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B702445F1B018CF600B9B47F /* RapiTag */,
-				B70244781B018CF600B9B47F /* RapiTagTests */,
+				B702445F1B018CF600B9B47F /* TagIt */,
+				B70244781B018CF600B9B47F /* TagItTests */,
 			);
 		};
 /* End PBXProject section */
@@ -341,7 +341,7 @@
 			files = (
 				B77C52EA1B7F0B270049D701 /* EPCEncoderTests.m in Sources */,
 				B77C52E81B7F0B200049D701 /* ConverterTests.m in Sources */,
-				B70244801B018CF600B9B47F /* RapiTagTests.m in Sources */,
+				B70244801B018CF600B9B47F /* TagItTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -350,7 +350,7 @@
 /* Begin PBXTargetDependency section */
 		B702447B1B018CF600B9B47F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = B702445F1B018CF600B9B47F /* RapiTag */;
+			target = B702445F1B018CF600B9B47F /* TagIt */;
 			targetProxy = B702447A1B018CF600B9B47F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -466,7 +466,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = RapiTag/Info.plist;
+				INFOPLIST_FILE = TagIt/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -474,8 +474,8 @@
 					"$(PROJECT_DIR)/Zebra",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.target.stores.rapitag.daily.tim;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmilne.tagit;
+				PRODUCT_NAME = TagIt;
 				USER_HEADER_SEARCH_PATHS = "Zebra/include/**";
 			};
 			name = Debug;
@@ -489,7 +489,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = RapiTag/Info.plist;
+				INFOPLIST_FILE = TagIt/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -497,8 +497,8 @@
 					"$(PROJECT_DIR)/Zebra",
 				);
 				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_BUNDLE_IDENTIFIER = com.target.stores.rapitag.daily.tim;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.timmilne.tagit;
+				PRODUCT_NAME = TagIt;
 				USER_HEADER_SEARCH_PATHS = "Zebra/include/**";
 			};
 			name = Release;
@@ -515,11 +515,11 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = RapiTagTests/Info.plist;
+				INFOPLIST_FILE = TagItTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.target.stores.$(PRODUCT_NAME:rfc1034identifier:lower)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RapiTag.app/RapiTag";
+				PRODUCT_NAME = TagIt;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TagIt.app/TagIt";
 			};
 			name = Debug;
 		};
@@ -531,18 +531,18 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				INFOPLIST_FILE = RapiTagTests/Info.plist;
+				INFOPLIST_FILE = TagItTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.target.stores.$(PRODUCT_NAME:rfc1034identifier:lower)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RapiTag.app/RapiTag";
+				PRODUCT_NAME = TagIt;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TagIt.app/TagIt";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B702445B1B018CF600B9B47F /* Build configuration list for PBXProject "RapiTag" */ = {
+		B702445B1B018CF600B9B47F /* Build configuration list for PBXProject "TagIt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B70244811B018CF600B9B47F /* Debug */,
@@ -551,7 +551,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B70244831B018CF600B9B47F /* Build configuration list for PBXNativeTarget "RapiTag" */ = {
+		B70244831B018CF600B9B47F /* Build configuration list for PBXNativeTarget "TagIt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B70244841B018CF600B9B47F /* Debug */,
@@ -560,7 +560,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B70244861B018CF600B9B47F /* Build configuration list for PBXNativeTarget "RapiTagTests" */ = {
+		B70244861B018CF600B9B47F /* Build configuration list for PBXNativeTarget "TagItTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B70244871B018CF600B9B47F /* Debug */,

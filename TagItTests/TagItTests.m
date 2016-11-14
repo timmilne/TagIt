@@ -1,6 +1,6 @@
 //
-//  RapiTagTests.m
-//  RapiTagTests
+//  TagItTests.m
+//  TagItTests
 //
 //  Created by Tim.Milne on 5/11/15.
 //  Copyright (c) 2015 Tim.Milne. All rights reserved.
@@ -9,11 +9,11 @@
 #import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
 
-@interface RapiTagTests : XCTestCase
+@interface TagItTests : XCTestCase
 
 @end
 
-@implementation RapiTagTests
+@implementation TagItTests
 
 - (void)setUp {
     [super setUp];

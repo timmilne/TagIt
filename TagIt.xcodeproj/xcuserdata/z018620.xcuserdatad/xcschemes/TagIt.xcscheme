@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B702445F1B018CF600B9B47F"
-               BuildableName = "RapiTag.app"
-               BlueprintName = "RapiTag"
-               ReferencedContainer = "container:RapiTag.xcodeproj">
+               BuildableName = "TagIt.app"
+               BlueprintName = "TagIt"
+               ReferencedContainer = "container:TagIt.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B70244781B018CF600B9B47F"
-               BuildableName = "RapiTagTests.xctest"
-               BlueprintName = "RapiTagTests"
-               ReferencedContainer = "container:RapiTag.xcodeproj">
+               BuildableName = "TagIt.xctest"
+               BlueprintName = "TagItTests"
+               ReferencedContainer = "container:TagIt.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B70244781B018CF600B9B47F"
-               BuildableName = "RapiTagTests.xctest"
-               BlueprintName = "RapiTagTests"
-               ReferencedContainer = "container:RapiTag.xcodeproj">
+               BuildableName = "TagIt.xctest"
+               BlueprintName = "TagItTests"
+               ReferencedContainer = "container:TagIt.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -57,9 +57,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B702445F1B018CF600B9B47F"
-            BuildableName = "RapiTag.app"
-            BlueprintName = "RapiTag"
-            ReferencedContainer = "container:RapiTag.xcodeproj">
+            BuildableName = "TagIt.app"
+            BlueprintName = "TagIt"
+            ReferencedContainer = "container:TagIt.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -80,9 +80,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B702445F1B018CF600B9B47F"
-            BuildableName = "RapiTag.app"
-            BlueprintName = "RapiTag"
-            ReferencedContainer = "container:RapiTag.xcodeproj">
+            BuildableName = "TagIt.app"
+            BlueprintName = "TagIt"
+            ReferencedContainer = "container:TagIt.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -99,9 +99,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B702445F1B018CF600B9B47F"
-            BuildableName = "RapiTag.app"
-            BlueprintName = "RapiTag"
-            ReferencedContainer = "container:RapiTag.xcodeproj">
+            BuildableName = "TagIt.app"
+            BlueprintName = "TagIt"
+            ReferencedContainer = "container:TagIt.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

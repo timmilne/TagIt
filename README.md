@@ -1,4 +1,4 @@
-# RapiTag
-DPCI to RFID encoder
+# TagIt
+EPC RFID encoder for Backroom RFID tags
 
-Use this app to scan a DPCI barcode and encode an RFID tag with same
+Use this app to scan a UPC barcode and encode an RFID tag with same

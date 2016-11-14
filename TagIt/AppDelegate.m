@@ -1,6 +1,6 @@
 //
 //  AppDelegate.m
-//  RapiTag
+//  TagIt
 //
 //  Created by Tim.Milne on 5/11/15.
 //  Copyright (c) 2015 Tim.Milne. All rights reserved.
