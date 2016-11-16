@@ -513,20 +513,20 @@
                 _barcodeFound = FALSE;
                 
                 // Grab the barcode
-                NSString *barcode;
-                barcode = detectionString;
+                NSString *upc;
+                upc = detectionString;
                 
                 // Quick length checks, chop to 12 for now (remove leading zeros)
-                if (barcode.length == 13) barcode = [barcode substringFromIndex:1];
-                if (barcode.length == 14) barcode = [barcode substringFromIndex:2];
+                if (upc.length == 13) upc = [upc substringFromIndex:1];
+                if (upc.length == 14) upc = [upc substringFromIndex:2];
                 
                 // Set the interface
-                _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", barcode];
+                _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", upc];
                 _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
                 
                 // All T2 backroom tags will be encoded as replacement tags in GID format (even owned brand products).
                 // The serial numbers will all start with '04' (11 digits) to indicate the Commissioning Authority.
-                if ((barcode.length == 12) || (barcode.length == 14)) {
+                if ((upc.length == 12) || (upc.length == 14)) {
 
                     // This is a replacement tag, set the commissioning authority to '04'
 // TBD - Need a random number generator for the last 9 digits of the serial number
@@ -534,15 +534,15 @@
                     [_serFld setText:ser];
                     
                     // Take the UPC and encode a reference
-                    [_encode gidWithGTIN:barcode ser:ser];
+                    [_encode gidWithGTIN:upc ser:ser];
                     
                     // Set the interface
-                    [_upcFld setText:barcode];
+                    [_upcFld setText:upc];
                     
                     _barcodeFound = TRUE;
                     
                     // Log the read barcode
-                    NSLog(@"\nBar code read read: %@\n", barcode);
+                    NSLog(@"\nBar code read read: %@\n", upc);
                 }
                 
                 // Unsupported barcode
@@ -553,7 +553,7 @@
                     _barcodeFound = FALSE;
                     
                     // Log the unsupported barcode
-                    NSLog(@"\nUnsupported barcode: %@\n", barcode);
+                    NSLog(@"\nUnsupported barcode: %@\n", upc);
                 }
             }
         }
