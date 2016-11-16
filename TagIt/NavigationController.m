@@ -2,8 +2,8 @@
 //  NavigationController.m
 //  TagIt
 //
-//  Created by Tim.Milne on 6/18/15.
-//  Copyright (c) 2015 Tim.Milne. All rights reserved.
+//  Created by Tim.Milne on 11/11/16.
+//  Copyright (c) 2016 Tim.Milne. All rights reserved.
 //
 
 #import "NavigationController.h"
