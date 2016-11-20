@@ -20,8 +20,10 @@
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
     __weak IBOutlet UILabel         *_upcLbl;
+    __weak IBOutlet UILabel         *_tcinLbl;
     __weak IBOutlet UILabel         *_serLbl;
     __weak IBOutlet UITextField     *_upcFld;
+    __weak IBOutlet UITextField     *_tcinFld;
     __weak IBOutlet UITextField     *_serFld;
     __weak IBOutlet UIBarButtonItem *_resetBtn;
     __weak IBOutlet UIBarButtonItem *_encodeBtn;
@@ -30,7 +32,7 @@
     __weak IBOutlet UISwitch        *_scanScanEncodeSwt;
     __weak IBOutlet UILabel         *_versionLbl;
     
-    BOOL                            _barcodeFound;
+    BOOL                            _tcinFound;
     BOOL                            _rfidFound;
     BOOL                            _encoding;
     BOOL                            _tagEncoded;
@@ -82,13 +84,14 @@
     _oldEPC = [[NSMutableString alloc] init];
     _newEPC = [[NSMutableString alloc] init];
     _lastDetectionString = [[NSMutableString alloc] init];
-    _barcodeFound = FALSE;
+    _tcinFound = FALSE;
     _rfidFound = FALSE;
     _defaultBackgroundColor = UIColorFromRGB(0x000000);
     
     // Set the label background colors
-    _upcLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-    _serLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
+    _upcLbl.backgroundColor  = [UIColor colorWithWhite:0.15 alpha:0.65];
+    _tcinLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
+    _serLbl.backgroundColor  = [UIColor colorWithWhite:0.15 alpha:0.65];
     
 // TPM: The barcode scanner example built the UI from scratch.  This made it easier to deal with all
 // the settings programatically, so I've continued with that here...
@@ -157,8 +160,10 @@
     
     // Bring the input views to the front
     [self.view bringSubviewToFront:_upcLbl];
+    [self.view bringSubviewToFront:_tcinLbl];
     [self.view bringSubviewToFront:_serLbl];
     [self.view bringSubviewToFront:_upcFld];
+    [self.view bringSubviewToFront:_tcinFld];
     [self.view bringSubviewToFront:_serFld];
     
     // Pop the subviews to the front of the preview view
@@ -213,7 +218,7 @@
  */
 - (IBAction)reset:(id)sender {
     // Reset all controls and variables
-    _barcodeFound = FALSE;
+    _tcinFound = FALSE;
     _rfidFound = FALSE;
     _encodeBtn.enabled = FALSE;
     _encoding = FALSE;
@@ -222,6 +227,7 @@
     [self.view setBackgroundColor:_defaultBackgroundColor];
     
     _upcFld.text = @"";
+    _tcinFld.text = @"";
     
     _barcodeLbl.text = @"Barcode: (scanning for barcodes)";
     _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
@@ -239,7 +245,8 @@
         // DON'T reset these controls and variables
 //        _tagEncoded = FALSE;                  // Set only in endEncode
 //        [_lastDetectionString setString:@""]; // Read a barcode only once in captureOutput - must read a different barcode each time
-//        _serFld.text = @"04000000001";                  // Incremented after successful tag write
+//        _serFld.text = @"040000000000001";                  // This is updated after successful tag write
+        [self newSerial];                                     // But still do it here
         
         // Scanning for labels
         _rfidLbl.text = @"RFID: (scanning for labels)";
@@ -257,7 +264,7 @@
         // Reset these additional controls and variables
         _tagEncoded = FALSE;
         [_lastDetectionString setString:@""];
-        _serFld.text = @"04000000001";
+        [self newSerial];
         
         // Scanning for tags
         _rfidLbl.text = @"RFID: (connecting to reader)";
@@ -510,7 +517,7 @@
             // All the rest are UPC or EAN barcodes
             else {
                 // Assume false until verified
-                _barcodeFound = FALSE;
+                _tcinFound = FALSE;
                 
                 // Grab the barcode
                 NSString *upc;
@@ -520,26 +527,22 @@
                 if (upc.length == 13) upc = [upc substringFromIndex:1];
                 if (upc.length == 14) upc = [upc substringFromIndex:2];
                 
-                // Set the interface
-                _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", upc];
-                _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
-                
-                // All T2 backroom tags will be encoded as replacement tags in GID format (even owned brand products).
-                // The serial numbers will all start with '04' (11 digits) to indicate the Commissioning Authority.
+                // All T2 backroom tags will encode the TCIN in GIAI format.
                 if ((upc.length == 12) || (upc.length == 14)) {
-
-                    // This is a replacement tag, set the commissioning authority to '04'
-// TBD - Need a random number generator for the last 9 digits of the serial number
-                    NSString *ser  = ([_serFld.text length])?[_serFld text]:@"04000000001";
-                    [_serFld setText:ser];
-                    
-                    // Take the UPC and encode a reference
-                    [_encode gidWithGTIN:upc ser:ser];
                     
                     // Set the interface
                     [_upcFld setText:upc];
                     
-                    _barcodeFound = TRUE;
+                    // The UPC was updated, lookup a new TCIN
+                    [self lookupTCIN:upc];
+                    
+                    if ([[_tcinFld text] length] > 0 ) {
+                        // Get a new serial number
+                        [self newSerial];
+                        
+                        // Update the EPCEncoder object
+                        [_encode withTCIN:[_tcinFld text] ser:[_serFld text]];
+                    }
                     
                     // Log the read barcode
                     NSLog(@"\nBar code read read: %@\n", upc);
@@ -550,7 +553,7 @@
                     
                     _barcodeLbl.text = @"Barcode: unsupported barcode";
                     _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC0000);
-                    _barcodeFound = FALSE;
+                    _tcinFound = FALSE;
                     
                     // Log the unsupported barcode
                     NSLog(@"\nUnsupported barcode: %@\n", upc);
@@ -562,7 +565,7 @@
         else {
             _barcodeLbl.text = @"Barcode: (scanning for barcodes)";
             _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-            _barcodeFound = FALSE;
+            _tcinFound = FALSE;
         }
     }
     
@@ -593,6 +596,11 @@
     _successImg.hidden = TRUE;
     _failImg.hidden = TRUE;
     
+    // If the UPC was manually updated, lookup a new TCIN
+    if ([sender isEqual:_upcFld]) {
+        [self lookupTCIN:[_upcFld text]];
+    }
+    
     [self updateAll];
 }
 
@@ -600,57 +608,45 @@
  * @discussion Update all elements for any input change.  Check input and check ready to encode.
  */
 - (void)updateAll {
-    NSString *upc = [_upcFld text];
-    NSString *ser = [_serFld text];
+    NSString *upc  = [_upcFld text];
+    NSString *tcin = [_tcinFld text];
     
     // Make sure the inputs are not too long (especially the Serial Number)
     if ([upc length] > 14) {
         upc = [upc substringToIndex:14];
         [_upcFld setText:upc];
     }
-    if ([ser length] > 11) {
-        // GID serial number max = 11
-        ser = [ser substringToIndex:11];
-        [_serFld setText:ser];
+    // The TCIN must be exactly 10 digits
+    if ([tcin length] > 10) {
+        tcin = [tcin substringToIndex:10];
+        [_tcinFld setText:tcin];
+    }
+    if ([tcin length] > 0) {
+        for (int i=(int)[tcin length]; i<10; i++) {
+            tcin = [NSString stringWithFormat:@"0%@", tcin];
+            [_tcinFld setText:tcin];
+        }
     }
     
-    // All T2 backroom tags will be encoded as replacement tags in GID format (even owned brand products).
-    // The serial numbers will all start with '04' (11 digits) to indicate the Commissioning Authority.
-    if ([ser length] > 0 && [upc length] > 0) {
-        
-        // This is a replacement tag, check the commissioning authority
-        // GID serial numbers are 11 digits long
-        for (int i=(int)[ser length]; i<11; i++) {
-            ser = [NSString stringWithFormat:@"0%@", ser];
-        }
-        
-        // Make sure it starts with 04
-        if (!([[ser substringToIndex:2] isEqualToString:@"04"])) {
-            ser = [NSString stringWithFormat:@"04%@", [ser substringFromIndex:2]];
-        }
-        [_serFld setText:ser];
+    // All T2 backroom tags will encode the TCIN in GIAI format.
+    if ([tcin length] > 0) {
+        // Get a new serial number
+        [self newSerial];
         
         // Update the EPCEncoder object
-        [_encode gidWithGTIN:upc ser:ser];
+        [_encode withTCIN:[_tcinFld text] ser:[_serFld text]];
         
-        if ([upc length] == 14 || [upc length] == 12) {
-            _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", upc];
-            _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
-            _barcodeFound = TRUE;
-        }
-        else {
-            _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: (invalid UPC)"];
-            _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC0000);
-            _barcodeFound = FALSE;
-        }
-        
-        _barcodeFound = TRUE;
+        _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", tcin];
+        _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
+        _tcinFound = TRUE;
     }
-    
+    else if ([upc length] > 0) {
+        [self lookupTCIN:upc];
+    }
     else {
         _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: (scanning for barcodes)"];
         _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-        _barcodeFound = FALSE;
+        _tcinFound = FALSE;
     }
     
     // Set the background color
@@ -660,6 +656,79 @@
     if (_scanScanEncodeSwt.on == FALSE) [self readyToEncode];
 }
 
+- (void)lookupTCIN:(NSString*)upc {
+    
+    NSString *tcin = @"";
+    
+    // Begin by clearing out any previous TCIN
+    [_tcinFld setText:tcin];
+    _tcinFound = FALSE;
+    
+    if ([upc length] == 14 || [upc length] == 12) {
+        _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", upc];
+        _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC9900);
+    }
+    else {
+        _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: (invalid UPC)"];
+        _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC0000);
+        return;
+    }
+    
+
+// TBD - Begin RedSky code block - To be implemented
+    
+    // Hit RedSky with the UPC to lookup the associated TCIN
+
+    // If there is more than one TCIN, popup a dialog and have the user pick one
+    
+    // This method MUST resolve a valid TCIN
+    
+    // Set the TCIN (hard coded for now, but make sure to set it after a successful lookup)
+    tcin = @"1234567890";
+    
+// TBD - End RedSky code block
+    
+    
+    
+    // The TCIN is ready
+    [_tcinFld setText:tcin];
+    _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
+    _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
+    _tcinFound = TRUE;
+}
+
+- (void)newSerial {
+    
+    
+// TBD - Begin Serial Number Generator code block
+    
+    //Replace this with the new serial number generator
+    
+    NSString *ser  = ([_serFld.text length])?[_serFld text]:@"040000000000001";
+    if ([ser length] > 15) {
+        // GIAI serial number max = 15
+        ser = [ser substringToIndex:15];
+        [_serFld setText:ser];
+    }
+
+    // The serial number is 15 digits
+    for (int i=(int)[ser length]; i<15; i++) {
+        ser = [NSString stringWithFormat:@"0%@", ser];
+    }
+    
+    // And should start with '04' to indicate the Commissioning Authority.
+    if (!([[ser substringToIndex:2] isEqualToString:@"04"])) {
+        ser = [NSString stringWithFormat:@"04%@", [ser substringFromIndex:2]];
+    }
+    
+// TBD - End Serial Number Generator code block
+    
+
+    
+    // Set the serial number
+    [_serFld setText:ser];
+}
+
 // Encode
 #pragma mark - Encode
 
@@ -667,8 +736,8 @@
  * @discussion Check for ready to encode - Enable the encode button if all input ready.
  */
 - (void)readyToEncode {
-    // If we have a valid barcode, an RFID tag, and a reader is connected, we are ready to encode
-    BOOL conditionsMet = (_barcodeFound && _rfidFound && ([_oldEPC length] > 0));
+    // If we have a valid TCIN, an RFID tag, and a reader is connected, we are ready to encode
+    BOOL conditionsMet = (_tcinFound && _rfidFound && ([_oldEPC length] > 0));
     
     // If scanScanEncode is enabled, automatically encode the tag now
     if (_scanScanEncodeSwt.on == TRUE && conditionsMet) {
@@ -703,7 +772,7 @@
     _successImg.hidden = TRUE;
     _failImg.hidden = TRUE;
     
-    [self beginEncode:[_encode gid_hex]];
+    [self beginEncode:[_encode giai_hex]];
 }
 
 /*!
@@ -776,9 +845,8 @@
             _rfidLbl.text = [NSString stringWithFormat:@"RFID: %@", _newEPC];
             _rfidLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
             
-            // Increment the serial number for another run and update
-            long long serLong = [[_serFld text] longLongValue];
-            [_serFld setText:[NSString stringWithFormat:@"%lld", (long long)(++serLong)]];
+            // Update the serial number for another run and update all
+            [self newSerial];
             [self updateAll];
             _successImg.hidden = FALSE;
             _tagEncoded = TRUE;

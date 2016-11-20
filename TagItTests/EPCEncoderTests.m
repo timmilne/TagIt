@@ -19,12 +19,16 @@
     NSString   *_ser;
     NSString   *_gtin;
     NSString   *_partBin;
+    NSString   *_tcin;
     NSString   *_test_gid_bin;
     NSString   *_test_gid_hex;
     NSString   *_test_gid_uri;
     NSString   *_test_sgtin_bin;
     NSString   *_test_sgtin_hex;
     NSString   *_test_sgtin_uri;
+    NSString   *_test_giai_bin;
+    NSString   *_test_giai_hex;
+    NSString   *_test_giai_uri;
     NSString   *_test_empty;
 }
 
@@ -54,9 +58,9 @@
     [_encode withDpt:_dpt cls:_cls itm:_itm ser:_ser];
     _test_gid_bin = @"001101010000010010110011001001100100000000010100111011000110000000000000000000000011000000111001";
     _test_gid_hex = @"3504B3264014EC6000003039";
-// TPM - We are not using the uri, so leave this for now, but note that GID CANNOT have leading zeroes
-//       in the manager and item fields...
-//    _test_gid_uri = @"urn:epc:tag:gid-96:4928100.85702.12345";  // This is what it is supposed to look like
+    // TPM - We are not using the uri, so leave this for now, but note that GID CANNOT have leading zeroes
+    //       in the manager and item fields...
+    //    _test_gid_uri = @"urn:epc:tag:gid-96:4928100.85702.12345";  // This is what it is supposed to look like
     _test_gid_uri = @"urn:epc:tag:gid-96:04928100.0085702.12345"; // This is what is being returned
     
     XCTAssertEqualObjects(_test_gid_bin, [_encode gid_bin],   @"withDptClsItmSer: Test 1 Part 1 Failed");
@@ -66,6 +70,55 @@
     XCTAssertEqualObjects(_test_empty  , [_encode sgtin_bin], @"withDptClsItmSer: Test 1 Part 5 Failed");
     XCTAssertEqualObjects(_test_empty  , [_encode sgtin_hex], @"withDptClsItmSer: Test 1 Part 6 Failed");
     XCTAssertEqualObjects(_test_empty  , [_encode sgtin_uri], @"withDptClsItmSer: Test 1 Part 7 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_bin],  @"withDptClsItmSer: Test 1 Part 8 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_hex],  @"withDptClsItmSer: Test 1 Part 9 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_uri],  @"withDptClsItmSer: Test 1 Part 10 Failed");
+}
+
+- (void)testGidWithGTIN{
+    // Check with http://www.kentraub.net/tools/tagxlate/EPCEncoderDecoder.html
+    //    NSString *GID_Hex_Ken_str = @"3504B3264014EC6000003039";
+    _gtin   = @"00052175551276";
+    _ser = @"0100012345";
+    [_encode gidWithGTIN:_gtin ser:_ser];
+    _test_gid_bin = @"001101010000000000001100101111001111000010000110100101101100000000000101111101100001000100111001";
+    _test_gid_hex = @"35000CBCF08696C005F61139";
+    // TPM - We are not using the uri, so leave this for now, but note that GID CANNOT have leading zeroes
+    //       in the manager and item fields...
+    //    _test_gid_uri = @"urn:epc:tag:gid-96:52175.551276.100012345"; // This is what it is supposed to look like
+    _test_gid_uri = @"urn:epc:tag:gid-96:00052175.0551276.0100012345";  // This is what is being returned
+    
+    XCTAssertEqualObjects(_test_gid_bin, [_encode gid_bin],   @"gidWithGTIN: Test 1 Part 1 Failed");
+    XCTAssertEqualObjects(_test_gid_hex, [_encode gid_hex],   @"gidWithGTIN: Test 1 Part 2 Failed");
+    XCTAssertEqualObjects(_test_gid_uri, [_encode gid_uri],   @"gidWithGTIN: Test 1 Part 3 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode gtin],      @"gidWithGTIN: Test 1 Part 4 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode sgtin_bin], @"gidWithGTIN: Test 1 Part 5 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode sgtin_hex], @"gidWithGTIN: Test 1 Part 6 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode sgtin_uri], @"gidWithGTIN: Test 1 Part 7 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_bin],  @"gidWithGTIN: Test 1 Part 8 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_hex],  @"gidWithGTIN: Test 1 Part 9 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_uri],  @"gidWithGTIN: Test 1 Part 10 Failed");
+    
+    _gtin   = @"052175551276";
+    _ser = @"100012345";
+    [_encode gidWithGTIN:_gtin ser:_ser];
+    _test_gid_bin = @"001101010000000000001100101111001111000010000110100101101100000000000101111101100001000100111001";
+    _test_gid_hex = @"35000CBCF08696C005F61139";
+    // TPM - We are not using the uri, so leave this for now, but note that GID CANNOT have leading zeroes
+    //       in the manager and item fields...
+    //    _test_gid_uri = @"urn:epc:tag:gid-96:52175.551276.100012345"; // This is what it is supposed to look like
+    _test_gid_uri = @"urn:epc:tag:gid-96:00052175.0551276.0100012345";  // This is what is being returned
+    
+    XCTAssertEqualObjects(_test_gid_bin, [_encode gid_bin],   @"gidWithGTIN: Test 2 Part 1 Failed");
+    XCTAssertEqualObjects(_test_gid_hex, [_encode gid_hex],   @"gidWithGTIN: Test 2 Part 2 Failed");
+    XCTAssertEqualObjects(_test_gid_uri, [_encode gid_uri],   @"gidWithGTIN: Test 2 Part 3 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode gtin],      @"gidWithGTIN: Test 2 Part 4 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode sgtin_bin], @"gidWithGTIN: Test 2 Part 5 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode sgtin_hex], @"gidWithGTIN: Test 2 Part 6 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode sgtin_uri], @"gidWithGTIN: Test 2 Part 7 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_bin],  @"gidWithGTIN: Test 2 Part 8 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_hex],  @"gidWithGTIN: Test 2 Part 9 Failed");
+    XCTAssertEqualObjects(_test_empty  , [_encode giai_uri],  @"gidWithGTIN: Test 2 Part 10 Failed");
 }
 
 - (void)testWithGtinSerPartBin{
@@ -87,13 +140,16 @@
     XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"withGtinSerPartBin: Test 1 Part 7 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"withGtinSerPartBin: Test 1 Part 8 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"withGtinSerPartBin: Test 1 Part 9 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_bin],  @"withGtinSerPartBin: Test 1 Part 10 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_hex],  @"withGtinSerPartBin: Test 1 Part 11 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_uri],  @"withGtinSerPartBin: Test 1 Part 12 Failed");
     
     _partBin = @"001"; // Mgr len 11, Itm len 2
     [_encode withGTIN:_gtin ser:_ser partBin:_partBin];
     _test_sgtin_bin = @"001100000010010000000011010001100000000010011101110000001000000000000000000000000011000000111001";
     _test_sgtin_hex = @"30240346009DC08000003039";
     _test_sgtin_uri = @"urn:epc:tag:sgtin-96:1.00439354606.02.12345";
-
+    
     XCTAssertEqualObjects(_test_sgtin_bin, [_encode sgtin_bin], @"withGtinSerPartBin: Test 2 Part 1 Failed");
     XCTAssertEqualObjects(_test_sgtin_hex, [_encode sgtin_hex], @"withGtinSerPartBin: Test 2 Part 2 Failed");
     XCTAssertEqualObjects(_test_sgtin_uri, [_encode sgtin_uri], @"withGtinSerPartBin: Test 2 Part 3 Failed");
@@ -103,13 +159,16 @@
     XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"withGtinSerPartBin: Test 2 Part 7 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"withGtinSerPartBin: Test 2 Part 8 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"withGtinSerPartBin: Test 2 Part 9 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_bin],  @"withGtinSerPartBin: Test 2 Part 10 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_hex],  @"withGtinSerPartBin: Test 2 Part 11 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_uri],  @"withGtinSerPartBin: Test 2 Part 12 Failed");
     
     _partBin = @"010"; // Mgr len 10, Itm len 3
     [_encode withGTIN:_gtin ser:_ser partBin:_partBin];
     _test_sgtin_bin = @"001100000010100000000010100111100110011011100100000011111000000000000000000000000011000000111001";
     _test_sgtin_hex = @"3028029E66E40F8000003039";
     _test_sgtin_uri = @"urn:epc:tag:sgtin-96:1.0043935460.062.12345";
-
+    
     XCTAssertEqualObjects(_test_sgtin_bin, [_encode sgtin_bin], @"withGtinSerPartBin: Test 3 Part 1 Failed");
     XCTAssertEqualObjects(_test_sgtin_hex, [_encode sgtin_hex], @"withGtinSerPartBin: Test 3 Part 2 Failed");
     XCTAssertEqualObjects(_test_sgtin_uri, [_encode sgtin_uri], @"withGtinSerPartBin: Test 3 Part 3 Failed");
@@ -119,13 +178,16 @@
     XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"withGtinSerPartBin: Test 3 Part 7 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"withGtinSerPartBin: Test 3 Part 8 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"withGtinSerPartBin: Test 3 Part 9 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_bin],  @"withGtinSerPartBin: Test 3 Part 10 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_hex],  @"withGtinSerPartBin: Test 3 Part 11 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_uri],  @"withGtinSerPartBin: Test 3 Part 12 Failed");
     
     _partBin = @"011"; // Mgr len 9, Itm len 4
     [_encode withGTIN:_gtin ser:_ser partBin:_partBin];
     _test_sgtin_bin = @"001100000010110000000100001100001010010010100000000011111000000000000000000000000011000000111001";
     _test_sgtin_hex = @"302C0430A4A00F8000003039";
     _test_sgtin_uri = @"urn:epc:tag:sgtin-96:1.004393546.0062.12345";
-
+    
     XCTAssertEqualObjects(_test_sgtin_bin, [_encode sgtin_bin], @"withGtinSerPartBin: Test 4 Part 1 Failed");
     XCTAssertEqualObjects(_test_sgtin_hex, [_encode sgtin_hex], @"withGtinSerPartBin: Test 4 Part 2 Failed");
     XCTAssertEqualObjects(_test_sgtin_uri, [_encode sgtin_uri], @"withGtinSerPartBin: Test 4 Part 3 Failed");
@@ -135,13 +197,16 @@
     XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"withGtinSerPartBin: Test 4 Part 7 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"withGtinSerPartBin: Test 4 Part 8 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"withGtinSerPartBin: Test 4 Part 9 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_bin],  @"withGtinSerPartBin: Test 4 Part 10 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_hex],  @"withGtinSerPartBin: Test 4 Part 11 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_uri],  @"withGtinSerPartBin: Test 4 Part 12 Failed");
     
     _partBin = @"100"; // Mgr len 8, Itm len 5
     [_encode withGTIN:_gtin ser:_ser partBin:_partBin];
     _test_sgtin_bin = @"001100000011000000000011010110100001110100000101111010111000000000000000000000000011000000111001";
     _test_sgtin_hex = @"3030035A1D05EB8000003039";
     _test_sgtin_uri = @"urn:epc:tag:sgtin-96:1.00439354.06062.12345";
-
+    
     XCTAssertEqualObjects(_test_sgtin_bin, [_encode sgtin_bin], @"withGtinSerPartBin: Test 5 Part 1 Failed");
     XCTAssertEqualObjects(_test_sgtin_hex, [_encode sgtin_hex], @"withGtinSerPartBin: Test 5 Part 2 Failed");
     XCTAssertEqualObjects(_test_sgtin_uri, [_encode sgtin_uri], @"withGtinSerPartBin: Test 5 Part 3 Failed");
@@ -151,13 +216,16 @@
     XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"withGtinSerPartBin: Test 5 Part 7 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"withGtinSerPartBin: Test 5 Part 8 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"withGtinSerPartBin: Test 5 Part 9 Failed");
-
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_bin],  @"withGtinSerPartBin: Test 5 Part 10 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_hex],  @"withGtinSerPartBin: Test 5 Part 11 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_uri],  @"withGtinSerPartBin: Test 5 Part 12 Failed");
+    
     _partBin = @"101"; // Mgr len 7, Itm len 6
     [_encode withGTIN:_gtin ser:_ser partBin:_partBin];
     _test_sgtin_bin = @"001100000011010000000010101011100111110000101100111110111000000000000000000000000011000000111001";
     _test_sgtin_hex = @"303402AE7C2CFB8000003039";
     _test_sgtin_uri = @"urn:epc:tag:sgtin-96:1.0043935.046062.12345";
-
+    
     XCTAssertEqualObjects(_test_sgtin_bin, [_encode sgtin_bin], @"withGtinSerPartBin: Test 6 Part 1 Failed");
     XCTAssertEqualObjects(_test_sgtin_hex, [_encode sgtin_hex], @"withGtinSerPartBin: Test 6 Part 2 Failed");
     XCTAssertEqualObjects(_test_sgtin_uri, [_encode sgtin_uri], @"withGtinSerPartBin: Test 6 Part 3 Failed");
@@ -167,13 +235,16 @@
     XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"withGtinSerPartBin: Test 6 Part 7 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"withGtinSerPartBin: Test 6 Part 8 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"withGtinSerPartBin: Test 6 Part 9 Failed");
-
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_bin],  @"withGtinSerPartBin: Test 6 Part 10 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_hex],  @"withGtinSerPartBin: Test 6 Part 11 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_uri],  @"withGtinSerPartBin: Test 6 Part 12 Failed");
+    
     _partBin = @"110"; // Mgr len 6, Itm len 7
     [_encode withGTIN:_gtin ser:_ser partBin:_partBin];
     _test_sgtin_bin = @"001100000011100000000100010010100100001000010101010000111000000000000000000000000011000000111001";
     _test_sgtin_hex = @"3038044A4215438000003039";
     _test_sgtin_uri = @"urn:epc:tag:sgtin-96:1.004393.0546062.12345";
-
+    
     XCTAssertEqualObjects(_test_sgtin_bin, [_encode sgtin_bin], @"withGtinSerPartBin: Test 7 Part 1 Failed");
     XCTAssertEqualObjects(_test_sgtin_hex, [_encode sgtin_hex], @"withGtinSerPartBin: Test 7 Part 2 Failed");
     XCTAssertEqualObjects(_test_sgtin_uri, [_encode sgtin_uri], @"withGtinSerPartBin: Test 7 Part 3 Failed");
@@ -183,6 +254,64 @@
     XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"withGtinSerPartBin: Test 7 Part 7 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"withGtinSerPartBin: Test 7 Part 8 Failed");
     XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"withGtinSerPartBin: Test 7 Part 9 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_bin],  @"withGtinSerPartBin: Test 7 Part 10 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_hex],  @"withGtinSerPartBin: Test 7 Part 11 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode giai_uri],  @"withGtinSerPartBin: Test 7 Part 12 Failed");
+}
+
+
+- (void)testWithTcinSer{
+    // Check with http://www.kentraub.net/tools/tagxlate/EPCEncoderDecoder.html
+    _tcin   = @"0016399081";
+    _ser     = @"10000000000001";
+    [_encode withTCIN:_tcin ser:_ser];
+    _test_giai_bin = @"001101000000100000000000111110100011101011101001000010010001100001001110011100101010000000000001";
+    _test_giai_hex = @"340800FA3AE909184E72A001";
+    _test_giai_uri = @"urn:epc:tag:giai-96:0.0016399081.10000000000001";
+    
+    XCTAssertEqualObjects(_test_giai_bin , [_encode giai_bin],  @"giaiWithTCIN: Test 1 Part 1 Failed");
+    XCTAssertEqualObjects(_test_giai_hex , [_encode giai_hex],  @"giaiWithTCIN: Test 1 Part 2 Failed");
+    XCTAssertEqualObjects(_test_giai_uri , [_encode giai_uri],  @"giaiWithTCIN: Test 1 Part 3 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"giaiWithTCIN: Test 1 Part 4 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"giaiWithTCIN: Test 1 Part 5 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"giaiWithTCIN: Test 1 Part 6 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_bin], @"giaiWithTCIN: Test 1 Part 7 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_hex], @"giaiWithTCIN: Test 1 Part 8 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_uri], @"giaiWithTCIN: Test 1 Part 9 Failed");
+    
+    _tcin   = @"016399081";
+    _ser     = @"1000000000001";
+    [_encode withTCIN:_tcin ser:_ser];
+    _test_giai_bin = @"001101000000100000000000111110100011101011101001000000001110100011010100101001010001000000000001";
+    _test_giai_hex = @"340800FA3AE900E8D4A51001";
+    _test_giai_uri = @"urn:epc:tag:giai-96:0.0016399081.1000000000001";
+    
+    XCTAssertEqualObjects(_test_giai_bin , [_encode giai_bin],  @"giaiWithTCIN: Test 2 Part 1 Failed");
+    XCTAssertEqualObjects(_test_giai_hex , [_encode giai_hex],  @"giaiWithTCIN: Test 2 Part 2 Failed");
+    XCTAssertEqualObjects(_test_giai_uri , [_encode giai_uri],  @"giaiWithTCIN: Test 2 Part 3 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"giaiWithTCIN: Test 2 Part 4 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"giaiWithTCIN: Test 2 Part 5 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"giaiWithTCIN: Test 2 Part 6 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_bin], @"giaiWithTCIN: Test 2 Part 7 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_hex], @"giaiWithTCIN: Test 2 Part 8 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_uri], @"giaiWithTCIN: Test 2 Part 9 Failed");
+    
+    _tcin   = @"16399081";
+    _ser     = @"100000000001";
+    [_encode withTCIN:_tcin ser:_ser];
+    _test_giai_bin = @"001101000000100000000000111110100011101011101001000000000001011101001000011101101110100000000001";
+    _test_giai_hex = @"340800FA3AE900174876E801";
+    _test_giai_uri = @"urn:epc:tag:giai-96:0.0016399081.100000000001";
+    
+    XCTAssertEqualObjects(_test_giai_bin , [_encode giai_bin],  @"giaiWithTCIN: Test 3 Part 1 Failed");
+    XCTAssertEqualObjects(_test_giai_hex , [_encode giai_hex],  @"giaiWithTCIN: Test 3 Part 2 Failed");
+    XCTAssertEqualObjects(_test_giai_uri , [_encode giai_uri],  @"giaiWithTCIN: Test 3 Part 3 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_bin],   @"giaiWithTCIN: Test 3 Part 4 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_hex],   @"giaiWithTCIN: Test 3 Part 5 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode gid_uri],   @"giaiWithTCIN: Test 3 Part 6 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_bin], @"giaiWithTCIN: Test 3 Part 7 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_hex], @"giaiWithTCIN: Test 3 Part 8 Failed");
+    XCTAssertEqualObjects(_test_empty    , [_encode sgtin_uri], @"giaiWithTCIN: Test 3 Part 9 Failed");
 }
 
 - (void)testCalculateCheckDigit{

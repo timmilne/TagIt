@@ -20,8 +20,7 @@
 		B785F88B1BA0D6270020C753 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B785F88A1BA0D6270020C753 /* CoreBluetooth.framework */; };
 		B785F88D1BA0D6380020C753 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B785F88C1BA0D6380020C753 /* ExternalAccessory.framework */; };
 		B785F8911BA0D7E50020C753 /* libsymbolrfid-sdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B785F88F1BA0D7E50020C753 /* libsymbolrfid-sdk.a */; };
-		B7D5C9BD1BCE0C6A00EDCCC0 /* EPCEncoder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7D5C9BC1BCE0C6A00EDCCC0 /* EPCEncoder.framework */; };
-		B7D5C9BE1BCE0CC300EDCCC0 /* EPCEncoder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7D5C9BC1BCE0C6A00EDCCC0 /* EPCEncoder.framework */; };
+		B7CE2DFF1DE0BA0000A26D33 /* EPCEncoder.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7CE2DFE1DE0BA0000A26D33 /* EPCEncoder.framework */; };
 		B7F7714F1C1B8548006D8FF9 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7F7714E1C1B8548006D8FF9 /* AVFoundation.framework */; };
 		B7F771511C1B855E006D8FF9 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7F771501C1B855E006D8FF9 /* AudioToolbox.framework */; };
 		B7F771531C1B856F006D8FF9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7F771521C1B856F006D8FF9 /* MediaPlayer.framework */; };
@@ -74,7 +73,7 @@
 		B785F88A1BA0D6270020C753 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		B785F88C1BA0D6380020C753 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		B785F88F1BA0D7E50020C753 /* libsymbolrfid-sdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libsymbolrfid-sdk.a"; path = "Zebra/libsymbolrfid-sdk.a"; sourceTree = "<group>"; };
-		B7D5C9BC1BCE0C6A00EDCCC0 /* EPCEncoder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = EPCEncoder.framework; sourceTree = "<group>"; };
+		B7CE2DFE1DE0BA0000A26D33 /* EPCEncoder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = EPCEncoder.framework; sourceTree = "<group>"; };
 		B7F7714E1C1B8548006D8FF9 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		B7F771501C1B855E006D8FF9 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		B7F771521C1B856F006D8FF9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
@@ -86,11 +85,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B7CE2DFF1DE0BA0000A26D33 /* EPCEncoder.framework in Frameworks */,
 				B7F771551C1B857F006D8FF9 /* SystemConfiguration.framework in Frameworks */,
 				B7F771531C1B856F006D8FF9 /* MediaPlayer.framework in Frameworks */,
 				B7F771511C1B855E006D8FF9 /* AudioToolbox.framework in Frameworks */,
 				B7F7714F1C1B8548006D8FF9 /* AVFoundation.framework in Frameworks */,
-				B7D5C9BD1BCE0C6A00EDCCC0 /* EPCEncoder.framework in Frameworks */,
 				B785F8911BA0D7E50020C753 /* libsymbolrfid-sdk.a in Frameworks */,
 				B785F88B1BA0D6270020C753 /* CoreBluetooth.framework in Frameworks */,
 				B785F88D1BA0D6380020C753 /* ExternalAccessory.framework in Frameworks */,
@@ -101,7 +100,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B7D5C9BE1BCE0CC300EDCCC0 /* EPCEncoder.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -211,7 +209,7 @@
 		B7D5C9BB1BCE0C4B00EDCCC0 /* EPCEncoder */ = {
 			isa = PBXGroup;
 			children = (
-				B7D5C9BC1BCE0C6A00EDCCC0 /* EPCEncoder.framework */,
+				B7CE2DFE1DE0BA0000A26D33 /* EPCEncoder.framework */,
 			);
 			name = EPCEncoder;
 			sourceTree = "<group>";
