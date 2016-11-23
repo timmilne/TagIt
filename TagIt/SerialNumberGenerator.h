@@ -10,4 +10,6 @@
 
 @interface SerialNumberGenerator : NSObject
 
++ (NSString*)newSerialWithSeed:(long long) initialSeed;
+
 @end
