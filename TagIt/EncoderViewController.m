@@ -16,6 +16,7 @@
 #import <EPCEncoder/EPCEncoder.h>     // To encode the scanned barcode for comparison
 #import <EPCEncoder/Converter.h>      // To convert to binary for comparison
 #import "RfidSdkFactory.h"            // Zebra reader
+#import "SerialNumberGenerator.h"
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
@@ -698,34 +699,9 @@
 }
 
 - (void)newSerial {
-    
-    
-// TBD - Begin Serial Number Generator code block
-    
-    //Replace this with the new serial number generator
-    
-    NSString *ser  = ([_serFld.text length])?[_serFld text]:@"040000000000001";
-    if ([ser length] > 15) {
-        // GIAI serial number max = 15
-        ser = [ser substringToIndex:15];
-        [_serFld setText:ser];
-    }
-
-    // The serial number is 15 digits
-    for (int i=(int)[ser length]; i<15; i++) {
-        ser = [NSString stringWithFormat:@"0%@", ser];
-    }
-    
-    // And should start with '04' to indicate the Commissioning Authority.
-    if (!([[ser substringToIndex:2] isEqualToString:@"04"])) {
-        ser = [NSString stringWithFormat:@"04%@", [ser substringFromIndex:2]];
-    }
-    
-// TBD - End Serial Number Generator code block
-    
-
-    
-    // Set the serial number
+    // TODO: get serial number from scanner for seed
+    long long barcode = 7725272730706;
+    NSString *ser = [SerialNumberGenerator newSerialWithSeed:barcode];
     [_serFld setText:ser];
 }
 
