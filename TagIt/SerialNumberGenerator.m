@@ -10,7 +10,7 @@
 
 @implementation SerialNumberGenerator
 
-+ (NSString*)newSerialWithSeed:(long long) initialSeed
++ (NSString*)newSerialWithSeed:(unsigned long long)initialSeed
 {
     // get current time in seconds since the Epoch
     NSDate *now = [NSDate date];
@@ -18,7 +18,7 @@
     // run current time through the lcg to create more randomness in seed
     long long lcgTimeResult = [self linearCongruentialGeneratorWithSeed:nowEpochSeconds];
 
-    long long seed = initialSeed + lcgTimeResult;
+    unsigned long long seed = initialSeed + lcgTimeResult;
 
     // generate pseudo-random serial number
     unsigned long long lcgResult = [self linearCongruentialGeneratorWithSeed:seed];
