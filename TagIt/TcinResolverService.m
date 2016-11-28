@@ -30,7 +30,8 @@
     [[session dataTaskWithURL:[NSURL URLWithString:urlString]
             completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
       {
-          if (error) {
+          NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+          if (error || statusCode != 200) {
               completion(error, nil);
           } else {
               NSError *jsonParsingError = nil;
