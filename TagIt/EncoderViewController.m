@@ -17,6 +17,7 @@
 #import <EPCEncoder/Converter.h>      // To convert to binary for comparison
 #import "RfidSdkFactory.h"            // Zebra reader
 #import "SerialNumberGenerator.h"
+#import "TcinResolverService.h"
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
@@ -658,13 +659,11 @@
 }
 
 - (void)lookupTCIN:(NSString*)upc {
-    
-    NSString *tcin = @"";
-    
+
     // Begin by clearing out any previous TCIN
-    [_tcinFld setText:tcin];
+    [_tcinFld setText:@""];
     _tcinFound = FALSE;
-    
+
     if ([upc length] == 14 || [upc length] == 12) {
         _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", upc];
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC9900);
@@ -674,29 +673,40 @@
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC0000);
         return;
     }
-    
 
-// TBD - Begin RedSky code block - To be implemented
-    
-    // Hit RedSky with the UPC to lookup the associated TCIN
+    [TcinResolverService getTcinWithBarcode:upc andCompletion:^(NSError *error, NSArray *tcins){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error) {
+                // TODO: some sort of error handling
+            } else {
 
-    // If there is more than one TCIN, popup a dialog and have the user pick one
-    
-    // This method MUST resolve a valid TCIN
-    
-    // Set the TCIN (hard coded for now, but make sure to set it after a successful lookup)
-    tcin = @"1234567890";
-    
-// TBD - End RedSky code block
-    
-    
-    
-    // The TCIN is ready
-    [_tcinFld setText:tcin];
-    _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
-    _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
-    _tcinFound = TRUE;
+                switch(tcins.count) {
+                case 0:
+                    [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+                    break;
+                case 1:
+                    [_tcinFld setText:[NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]]];
+                    _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
+                    _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
+                    _tcinFound = TRUE;
+                    break;
+                default:
+                    // TODO: display list of selectable tcins
+                    break;
+                }
+            }
+        });
+    }];
 }
+
+- (void) generateAlertWithTitle:(NSString *)title andMessage:(NSString *)message
+{
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:okAction];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
 
 - (void)newSerial {
     // TODO: get serial number from scanner for seed
