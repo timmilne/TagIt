@@ -786,9 +786,9 @@
         ser = [NSString stringWithFormat:@"0%@", ser];
     }
     
-    // And should start with '04' to indicate the Commissioning Authority.
-    if (!([[ser substringToIndex:2] isEqualToString:@"04"])) {
-        ser = [NSString stringWithFormat:@"04%@", [ser substringFromIndex:2]];
+    // And should start with '10' to indicate the Commissioning Authority.
+    if (!([[ser substringToIndex:2] isEqualToString:@"10"])) {
+        ser = [NSString stringWithFormat:@"10%@", [ser substringFromIndex:2]];
     }
     
 // TBD - End Serial Number Generator code block
