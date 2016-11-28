@@ -727,48 +727,53 @@
     [TcinResolverService getTcinWithBarcode:upc andCompletion:^(NSError *error, NSArray *tcins){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
-                // TODO: some sort of error handling
+                [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
             } else {
                 NSString *tcin;
                 switch(tcins.count) {
-                case 0:
-                    [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
-                    break;
-                case 1:
-                    tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
-                    // The TCIN is ready
-                    if ([tcin length] > 0 ) {
-
-                        // The TCIN must be exactly 10 digits
-                        for (int i=(int)[tcin length]; i<10; i++) {
-                            tcin = [NSString stringWithFormat:@"0%@", tcin];
-                            [_tcinFld setText:tcin];
-                        }
-
-                        [_tcinFld setText:tcin];
-                        _tcinFound = TRUE;
-
-                        // Update the EPCEncoder object
-                        // All T2 backroom tags will encode the TCIN in GIAI format.
-                        [_encode withTCIN:[_tcinFld text] ser:[self newSerial]];
-
-                        _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
-                        _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
+                    case 0:
+                        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+                        break;
+                    case 1:
+                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
+                        [self setTcinField:tcin];
+                        break;
+                    default:
+                        // TODO: display list of selectable tcins
+                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
+                        [self setTcinField:tcin];
+                        break;
                     }
-                    // Or for some reason it is not...
-                    else {
-                        _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: (scanning for barcodes)"];
-                        _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-                        _tcinFound = FALSE;
-                    }
-                    break;
-                default:
-                    // TODO: display list of selectable tcins
-                    break;
-                }
             }
         });
     }];
+}
+
+- (void) setTcinField:(NSString *)tcin
+{
+    // The TCIN is ready
+    if ([tcin length] > 0 ) {
+
+        // The TCIN must be exactly 10 digits
+        for (int i=(int)[tcin length]; i<10; i++) {
+            tcin = [NSString stringWithFormat:@"0%@", tcin];
+        }
+
+        [_tcinFld setText:tcin];
+        _tcinFound = TRUE;
+
+        // Update the EPCEncoder object
+        // All T2 backroom tags will encode the TCIN in GIAI format.
+        [_encode withTCIN:[_tcinFld text] ser:[self newSerial]];
+
+        _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
+        _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
+    }
+    // Or for some reason it is not...
+    else {
+        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+        _tcinFound = FALSE;
+    }
 }
 
 - (void) generateAlertWithTitle:(NSString *)title andMessage:(NSString *)message
@@ -782,9 +787,14 @@
 
 - (NSString *)newSerial
 {
-    // TODO: get serial number from scanner for seed
-    long long barcode = 7725272730706;
-    NSString *ser = [SerialNumberGenerator newSerialWithSeed:barcode];
+    unsigned long long seed;
+
+    if (_zebraReaderName.length > 0) {
+        seed = [[_zebraReaderName substringFromIndex:6] longLongValue];
+    } else {
+        seed = 7725272730706;
+    }
+    NSString *ser = [SerialNumberGenerator newSerialWithSeed:seed];
     return ser;
 }
 
