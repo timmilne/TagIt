@@ -22,15 +22,15 @@
 {
     __weak IBOutlet UILabel         *_upcLbl;
     __weak IBOutlet UILabel         *_tcinLbl;
-    __weak IBOutlet UILabel         *_serLbl;
     __weak IBOutlet UITextField     *_upcFld;
     __weak IBOutlet UITextField     *_tcinFld;
-    __weak IBOutlet UITextField     *_serFld;
     __weak IBOutlet UIBarButtonItem *_resetBtn;
     __weak IBOutlet UIBarButtonItem *_encodeBtn;
     __weak IBOutlet UIImageView     *_successImg;
     __weak IBOutlet UIImageView     *_failImg;
     __weak IBOutlet UISwitch        *_scanScanEncodeSwt;
+    __weak IBOutlet UISwitch        *_scanReadEncodeSwt;
+    __weak IBOutlet UISwitch        *_scanReadManualSwt;
     __weak IBOutlet UILabel         *_versionLbl;
     
     BOOL                            _tcinFound;
@@ -59,6 +59,7 @@
     
     id <srfidISdkApi>               _rfidSdkApi;
     int                             _zebraReaderID;
+    NSString                        *_zebraReaderName;      // Could use this to further generate a unique serial number
     srfidStartTriggerConfig         *_startTriggerConfig;
     srfidStopTriggerConfig          *_stopTriggerConfig;
     srfidReportConfig               *_reportConfig;
@@ -92,7 +93,6 @@
     // Set the label background colors
     _upcLbl.backgroundColor  = [UIColor colorWithWhite:0.15 alpha:0.65];
     _tcinLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-    _serLbl.backgroundColor  = [UIColor colorWithWhite:0.15 alpha:0.65];
     
 // TPM: The barcode scanner example built the UI from scratch.  This made it easier to deal with all
 // the settings programatically, so I've continued with that here...
@@ -162,10 +162,8 @@
     // Bring the input views to the front
     [self.view bringSubviewToFront:_upcLbl];
     [self.view bringSubviewToFront:_tcinLbl];
-    [self.view bringSubviewToFront:_serLbl];
     [self.view bringSubviewToFront:_upcFld];
     [self.view bringSubviewToFront:_tcinFld];
-    [self.view bringSubviewToFront:_serFld];
     
     // Pop the subviews to the front of the preview view
     [self.view bringSubviewToFront:_highlightView];
@@ -175,6 +173,11 @@
     [self.view bringSubviewToFront:_batteryLifeView];
     [self.view bringSubviewToFront:_successImg];
     [self.view bringSubviewToFront:_failImg];
+    
+    // Only the switches change this state
+    [_scanScanEncodeSwt setOn:TRUE];
+    [_scanReadEncodeSwt setOn:FALSE];
+    [_scanReadManualSwt setOn:FALSE];
     
     // Reset initializes all the variables and colors and pops the remaining views
     [self reset:_resetBtn];
@@ -187,6 +190,7 @@
     
     // Set Zebra scanner configurations used in srfidStartRapidRead
     _zebraReaderID = -1;
+    _zebraReaderName = @"";
     [self zebraInitializeRfidSdkWithAppSettings];
 }
 
@@ -211,6 +215,28 @@
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
             break;
     }
+}
+- (IBAction)changeMode:(id)sender {
+    
+    // Set all the toggles: mutually exclusive.  Selecting the active has no effect.
+    if ([sender isEqual:_scanScanEncodeSwt]) {
+        [_scanScanEncodeSwt setOn:TRUE];
+        [_scanReadEncodeSwt setOn:FALSE];
+        [_scanReadManualSwt setOn:FALSE];
+    }
+    else if ([sender isEqual:_scanReadEncodeSwt]) {
+        [_scanScanEncodeSwt setOn:FALSE];
+        [_scanReadEncodeSwt setOn:TRUE];
+        [_scanReadManualSwt setOn:FALSE];
+    }
+    else {
+        [_scanScanEncodeSwt setOn:FALSE];
+        [_scanReadEncodeSwt setOn:FALSE];
+        [_scanReadManualSwt setOn:TRUE];
+    }
+    
+    // End with a reset
+    [self reset:sender];
 }
 
 /*!
@@ -243,11 +269,9 @@
     
     // If scanScanEncode is enabled, reset these differently
     if (_scanScanEncodeSwt.on == TRUE) {
-        // DON'T reset these controls and variables
+        // DON'T reset these controls and variables in this mode
 //        _tagEncoded = FALSE;                  // Set only in endEncode
 //        [_lastDetectionString setString:@""]; // Read a barcode only once in captureOutput - must read a different barcode each time
-//        _serFld.text = @"040000000000001";                  // This is updated after successful tag write
-        [self newSerial];                                     // But still do it here
         
         // Scanning for labels
         _rfidLbl.text = @"RFID: (scanning for labels)";
@@ -260,20 +284,41 @@
         }
     }
     
-    // Regular reset, scan for a tag
-    else {
-        // Reset these additional controls and variables
-        _tagEncoded = FALSE;
+    // If scanReadEncode is enabled, reset these differently
+    else if (_scanReadEncodeSwt.on == TRUE) {
+        // DON'T reset these controls and variables in this mode
+//        _tagEncoded = FALSE;                  // Set only in endEncode
         [_lastDetectionString setString:@""];
-        [self newSerial];
         
         // Scanning for tags
         _rfidLbl.text = @"RFID: (connecting to reader)";
+        _rfidLbl.backgroundColor = UIColorFromRGB(0xCC9900);
         
         // If no connection open, open it now and start scanning for RFID tags
         [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
         [_rfidSdkApi srfidTerminateCommunicationSession:_zebraReaderID];
         _zebraReaderID = -1;
+        _zebraReaderName = @"";
+        [self zebraRapidRead];
+        
+        // Asking for RFID scans triggers battery life updates, so no need to do that here
+    }
+    
+    // Regular reset, scan for a tag
+    else {
+        // Reset these additional controls and variables
+        _tagEncoded = FALSE;
+        [_lastDetectionString setString:@""];
+        
+        // Scanning for tags
+        _rfidLbl.text = @"RFID: (connecting to reader)";
+        _rfidLbl.backgroundColor = UIColorFromRGB(0xCC9900);
+        
+        // If no connection open, open it now and start scanning for RFID tags
+        [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
+        [_rfidSdkApi srfidTerminateCommunicationSession:_zebraReaderID];
+        _zebraReaderID = -1;
+        _zebraReaderName = @"";
         [self zebraRapidRead];
         
         // Asking for RFID scans triggers battery life updates, so no need to do that here
@@ -430,11 +475,13 @@
                 _rfidLbl.text = @"RFID: (scanning for tags)";
                 _rfidLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
                 
-                // Stop an operation after 1 minute
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 *
-                                                                          NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
-                });
+                // Stop an operation after 1 minutes unless in scanReadEncode mode
+                if (_scanReadEncodeSwt.on == FALSE) {
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 *
+                                                                              NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
+                    });
+                }
             }
             else if (SRFID_RESULT_RESPONSE_ERROR == result) {
                 NSLog(@"Zebra Error response from RFID reader: %@\n", error_response);
@@ -531,20 +578,38 @@
                 // All T2 backroom tags will encode the TCIN in GIAI format.
                 if ((upc.length == 12) || (upc.length == 14)) {
                     
+                    // For scanReadEncode mode...
+                    if (_scanReadEncodeSwt.on == TRUE ) {
+                        
+                        // Manage a targeted reset here without all the overhead of a full reset.
+                        // Otherwise, this flow doesn't handle changes in the scanned UPC well,
+                        // particularly if the reader is still trying an asynchronous read.
+                        _rfidFound = FALSE;
+                        _encodeBtn.enabled = FALSE;
+                        _encoding = FALSE;
+                        [_oldEPC setString:@""];
+                        [_newEPC setString:@""];
+                        [self.view setBackgroundColor:_defaultBackgroundColor];
+                        
+                        // Hide the result images
+                        _successImg.hidden = TRUE;
+                        _failImg.hidden = TRUE;
+
+                        // These are slightly different, but should happen before the call to zebraRapidRead.
+                        _rfidLbl.text = @"RFID: (reset the session!)";
+                        _rfidLbl.backgroundColor = UIColorFromRGB(0xCC9900);
+                        
+                        // If reading, stop and start scanning for tags again.
+                        [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
+                        [self zebraRapidRead];
+                    }
+                    
                     // Set the interface
                     [_upcFld setText:upc];
                     
-                    // The UPC was updated, lookup a new TCIN
+                    // The UPC was updated, lookup a new TCIN and serial number
                     [self lookupTCIN:upc];
-                    
-                    if ([[_tcinFld text] length] > 0 ) {
-                        // Get a new serial number
-                        [self newSerial];
-                        
-                        // Update the EPCEncoder object
-                        [_encode withTCIN:[_tcinFld text] ser:[_serFld text]];
-                    }
-                    
+
                     // Log the read barcode
                     NSLog(@"\nBar code read read: %@\n", upc);
                 }
@@ -567,6 +632,7 @@
             _barcodeLbl.text = @"Barcode: (scanning for barcodes)";
             _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
             _tcinFound = FALSE;
+            NSLog(@"\nBarcode: Empty detection string??\n");
         }
     }
     
@@ -593,13 +659,37 @@
  * @discussion Update the interface - All the edit fields point here, after you end the edit and hit return.
  */
 - (IBAction)update:(id)sender {
+    
+    NSString *upc  = [_upcFld text];
+    NSString *tcin = [_tcinFld text];
+    
     // New input data
     _successImg.hidden = TRUE;
     _failImg.hidden = TRUE;
-    
-    // If the UPC was manually updated, lookup a new TCIN
+ 
+    // If the UPC was manually updated, force a TCIN lookup
     if ([sender isEqual:_upcFld]) {
+        // The upc should be 12 or 14 digits
+        if ([upc length] > 14) {
+            upc = [upc substringToIndex:14];
+            [_upcFld setText:upc];
+        }
+        
+        // New upc, look up the TCIN
         [self lookupTCIN:[_upcFld text]];
+    }
+    else {
+        // The TCIN must be exactly 10 digits
+        if ([tcin length] > 10) {
+            tcin = [tcin substringToIndex:10];
+            [_tcinFld setText:tcin];
+        }
+        if ([tcin length] > 0) {
+            for (int i=(int)[tcin length]; i<10; i++) {
+                tcin = [NSString stringWithFormat:@"0%@", tcin];
+                [_tcinFld setText:tcin];
+            }
+        }
     }
     
     [self updateAll];
@@ -609,59 +699,18 @@
  * @discussion Update all elements for any input change.  Check input and check ready to encode.
  */
 - (void)updateAll {
-    NSString *upc  = [_upcFld text];
-    NSString *tcin = [_tcinFld text];
-    
-    // Make sure the inputs are not too long (especially the Serial Number)
-    if ([upc length] > 14) {
-        upc = [upc substringToIndex:14];
-        [_upcFld setText:upc];
-    }
-    // The TCIN must be exactly 10 digits
-    if ([tcin length] > 10) {
-        tcin = [tcin substringToIndex:10];
-        [_tcinFld setText:tcin];
-    }
-    if ([tcin length] > 0) {
-        for (int i=(int)[tcin length]; i<10; i++) {
-            tcin = [NSString stringWithFormat:@"0%@", tcin];
-            [_tcinFld setText:tcin];
-        }
-    }
-    
-    // All T2 backroom tags will encode the TCIN in GIAI format.
-    if ([tcin length] > 0) {
-        // Get a new serial number
-        [self newSerial];
-        
-        // Update the EPCEncoder object
-        [_encode withTCIN:[_tcinFld text] ser:[_serFld text]];
-        
-        _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", tcin];
-        _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
-        _tcinFound = TRUE;
-    }
-    else if ([upc length] > 0) {
-        [self lookupTCIN:upc];
-    }
-    else {
-        _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: (scanning for barcodes)"];
-        _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-        _tcinFound = FALSE;
-    }
-    
+
     // Set the background color
     [self.view setBackgroundColor:_defaultBackgroundColor];
     
     // Check to see if ready to encode
-    if (_scanScanEncodeSwt.on == FALSE) [self readyToEncode];
+    if (_scanReadManualSwt.on == TRUE) [self readyToEncode];
 }
 
 - (void)lookupTCIN:(NSString*)upc {
     
-    NSString *tcin = @"";
-    
     // Begin by clearing out any previous TCIN
+    NSString *tcin = @"";
     [_tcinFld setText:tcin];
     _tcinFound = FALSE;
     
@@ -675,6 +724,7 @@
         return;
     }
     
+    
 
 // TBD - Begin RedSky code block - To be implemented
     
@@ -682,27 +732,71 @@
 
     // If there is more than one TCIN, popup a dialog and have the user pick one
     
-    // This method MUST resolve a valid TCIN
+    // This method MUST resolve a valid, 10 digit TCIN
     
     // Set the TCIN (hard coded for now, but make sure to set it after a successful lookup)
-    tcin = @"1234567890";
+    tcin = [upc substringToIndex:10];
     
 // TBD - End RedSky code block
     
     
     
+    
     // The TCIN is ready
-    [_tcinFld setText:tcin];
-    _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
-    _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
-    _tcinFound = TRUE;
+    if ([tcin length] > 0 ) {
+        
+        // The TCIN must be exactly 10 digits
+        for (int i=(int)[tcin length]; i<10; i++) {
+            tcin = [NSString stringWithFormat:@"0%@", tcin];
+            [_tcinFld setText:tcin];
+        }
+
+        [_tcinFld setText:tcin];
+        _tcinFound = TRUE;
+        
+        // Update the EPCEncoder object
+        // All T2 backroom tags will encode the TCIN in GIAI format.
+        [_encode withTCIN:[_tcinFld text] ser:[self newSerial]];
+        
+        _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
+        _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
+    }
+    // Or for some reason it is not...
+    else {
+        _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: (scanning for barcodes)"];
+        _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
+        _tcinFound = FALSE;
+    }
 }
 
-- (void)newSerial {
-    // TODO: get serial number from scanner for seed
-    long long barcode = 7725272730706;
-    NSString *ser = [SerialNumberGenerator newSerialWithSeed:barcode];
-    [_serFld setText:ser];
+- (NSString *)newSerial {
+    NSString *ser = @"100000000000001";
+    
+    
+    
+// TBD - Begin Serial Number Generator code block
+    
+    //Replace this with the new serial number generator
+    if ([ser length] > 15) {
+        // GIAI serial number max = 15
+        ser = [ser substringToIndex:15];
+    }
+
+    // The serial number is 15 digits
+    for (int i=(int)[ser length]; i<15; i++) {
+        ser = [NSString stringWithFormat:@"0%@", ser];
+    }
+    
+    // And should start with '10' to indicate the Commissioning Authority.
+    if (!([[ser substringToIndex:2] isEqualToString:@"10"])) {
+        ser = [NSString stringWithFormat:@"10%@", [ser substringFromIndex:2]];
+    }
+    
+// TBD - End Serial Number Generator code block
+    
+    
+
+    return ser;
 }
 
 // Encode
@@ -715,14 +809,18 @@
     // If we have a valid TCIN, an RFID tag, and a reader is connected, we are ready to encode
     BOOL conditionsMet = (_tcinFound && _rfidFound && ([_oldEPC length] > 0));
     
-    // If scanScanEncode is enabled, automatically encode the tag now
-    if (_scanScanEncodeSwt.on == TRUE && conditionsMet) {
+    // If one of the Encode modes is enabled...
+    if (((_scanScanEncodeSwt.on == TRUE) || (_scanReadEncodeSwt.on == TRUE)) && conditionsMet) {
+        
+        //... automatically encode the tag now
         [self encode:_scanScanEncodeSwt];
         
         if (_tagEncoded) {
-            [self reset:_scanScanEncodeSwt];
             
-            // Adjust the result images after reset
+            //_scanReadEncode mode doesn't require a reset
+            if (_scanReadEncodeSwt.on == FALSE) [self reset:_scanScanEncodeSwt];
+            
+            // Set the result images after (any) reset
             dispatch_async(dispatch_get_main_queue(),
                            ^{
                                _successImg.hidden = !(_tagEncoded);
@@ -776,7 +874,9 @@
     [_oldEPC setString:hex];
     
     if ([_newEPC length] == 0) return;
-    
+
+// For debugging only!
+#ifdef DEBUG
     // Test tag reset: check for one of the special reset barcodes, if found, encode with the reset value
     if ([[_upcFld text] isEqual:@"999999999917"]){
         [_newEPC setString:@"30304035A880C84000366A25"];
@@ -786,6 +886,12 @@
     }
     else if ([[_upcFld text] isEqual:@"999999999931"]){
         [_newEPC setString:@"30304035A880C84000366A27"];
+    }
+#endif
+    
+    // Suspend tag reading while writing tags
+    if (_scanReadEncodeSwt.on == TRUE) {
+        [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
     }
     
     // Assume failure (many ways to fail)
@@ -816,14 +922,13 @@
             _failImg.hidden = FALSE;
         }
         else {
-            NSLog(@"Tag programmed successfully\n");
+            NSLog(@"Tag programmed successfully: %@\n", _newEPC);
             [self.view setBackgroundColor:UIColorFromRGB(0xA4CD39)];
             _rfidLbl.text = [NSString stringWithFormat:@"RFID: %@", _newEPC];
             _rfidLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
             
-            // Update the serial number for another run and update all
-            [self newSerial];
             [self updateAll];
+
             _successImg.hidden = FALSE;
             _tagEncoded = TRUE;
         }
@@ -844,8 +949,14 @@
         _failImg.hidden = FALSE;
     }
     
-    // If our work is done
-    if (_tagEncoded) [_oldEPC setString:@""];
+    // For scanReadEncode, start reading tags again
+    if (_scanReadEncodeSwt.on == TRUE) {
+        [self zebraRapidRead];
+    }
+    // Otherwise, if a tag was encoded, clear the old string
+    else if (_tagEncoded) {
+        [_oldEPC setString:@""];
+    }
 }
 
 // Zebra RFID Reader
@@ -872,6 +983,7 @@
     
     // Set the reader
     _zebraReaderID = [activeReader getReaderID];
+    _zebraReaderName = [activeReader getReaderName];
     
     // Establish ASCII connection
     if ([_rfidSdkApi srfidEstablishAsciiConnection:_zebraReaderID aPassword:nil] == SRFID_RESULT_SUCCESS)
@@ -903,6 +1015,7 @@
         // Terminate sesssion
         [_rfidSdkApi srfidTerminateCommunicationSession:_zebraReaderID];
         _zebraReaderID = -1;
+        _zebraReaderName = @"";
         _rfidLbl.text = @"RFID: Zebra connection failed";
         _rfidLbl.backgroundColor = UIColorFromRGB(0xCC0000);
     }
@@ -916,16 +1029,48 @@
  */
 - (void)srfidEventReadNotify:(int)readerID aTagData:(srfidTagData*)tagData
 {
+    if (_scanReadEncodeSwt.on == TRUE) {
+        // If the newly read tag has already been encoded, do nothing and keep looking for a different rfid tag to encode.
+        // NOTE: _newEPC is ONLY set with a call to beginEncode, called from encode, called from readyToEncode.
+        // readyToEncode is called after 1. an RFID read in the second block below, 2. after a new barcode scan, or 3. conditionally after updateAll.
+        // So don't rely on _newEPC being properly set.  Use [_encode giai_hex], which is only set after a new barcode read and call to lookupTCIN.
+        if ([[tagData getTagId] isEqualToString:[_encode giai_hex]]) {
+            dispatch_async(dispatch_get_main_queue(),
+                           ^{
+                               // Stop the RFID reader, if not already by the trigger
+                               [_rfidSdkApi srfidStopRapidRead:readerID aStatusMessage:nil];
+                               
+                               // Start it again and keep checking for a new tag
+                               [self zebraRapidRead];
+                               
+                               // Log the read tag
+                               NSLog(@"\nRFID tag read: %@\n", _oldEPC);
+                           });
+            return;
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(),
+                           ^{
+                               // New tag reads in this mode should clear the success flag...
+                               _successImg.hidden = TRUE;
+                               _failImg.hidden = TRUE;
+                           });
+
+        }
+    }
+    // Otherwise, finish an encode and start reading for another
     dispatch_async(dispatch_get_main_queue(),
                    ^{
                        // tag was found for the first time
-
+                       
                        // Stop the RFID reader
                        [_rfidSdkApi srfidStopRapidRead:readerID aStatusMessage:nil];
                        
                        // New input data
-                       _successImg.hidden = TRUE;
-                       _failImg.hidden = TRUE;
+                       if (_scanReadEncodeSwt.on == FALSE) {
+                           _successImg.hidden = TRUE;
+                           _failImg.hidden = TRUE;
+                       }
                        
                        // Set the old EPC
                        [_oldEPC setString:[tagData getTagId]];
@@ -942,8 +1087,6 @@
                            _encoding = FALSE;
                        }
                        else {
-                           _rfidFound = TRUE;
-                           
                            // Check to see if ready to encode
                            [self readyToEncode];
                        }
