@@ -16,6 +16,8 @@
 #import <EPCEncoder/EPCEncoder.h>     // To encode the scanned barcode for comparison
 #import <EPCEncoder/Converter.h>      // To convert to binary for comparison
 #import "RfidSdkFactory.h"            // Zebra reader
+#import "SerialNumberGenerator.h"
+#import "TcinResolverService.h"
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
@@ -707,12 +709,11 @@
 }
 
 - (void)lookupTCIN:(NSString*)upc {
-    
+
     // Begin by clearing out any previous TCIN
-    NSString *tcin = @"";
-    [_tcinFld setText:tcin];
+    [_tcinFld setText:@""];
     _tcinFound = FALSE;
-    
+
     if ([upc length] == 14 || [upc length] == 12) {
         _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", upc];
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC9900);
@@ -722,79 +723,78 @@
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC0000);
         return;
     }
-    
-    
 
-// TBD - Begin RedSky code block - To be implemented
-    
-    // Hit RedSky with the UPC to lookup the associated TCIN
+    [TcinResolverService getTcinWithBarcode:upc andCompletion:^(NSError *error, NSArray *tcins){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error) {
+                [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
+            } else {
+                NSString *tcin;
+                switch(tcins.count) {
+                    case 0:
+                        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+                        break;
+                    case 1:
+                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
+                        [self setTcinField:tcin];
+                        break;
+                    default:
+                        // TODO: display list of selectable tcins
+                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
+                        [self setTcinField:tcin];
+                        break;
+                    }
+            }
+        });
+    }];
+}
 
-    // If there is more than one TCIN, popup a dialog and have the user pick one
-    
-    // This method MUST resolve a valid, 10 digit TCIN
-    
-    // Set the TCIN (hard coded for now, but make sure to set it after a successful lookup)
-    tcin = [upc substringToIndex:10];
-    
-// TBD - End RedSky code block
-    
-    
-    
-    
+- (void) setTcinField:(NSString *)tcin
+{
     // The TCIN is ready
     if ([tcin length] > 0 ) {
-        
+
         // The TCIN must be exactly 10 digits
         for (int i=(int)[tcin length]; i<10; i++) {
             tcin = [NSString stringWithFormat:@"0%@", tcin];
-            [_tcinFld setText:tcin];
         }
 
         [_tcinFld setText:tcin];
         _tcinFound = TRUE;
-        
+
         // Update the EPCEncoder object
         // All T2 backroom tags will encode the TCIN in GIAI format.
         [_encode withTCIN:[_tcinFld text] ser:[self newSerial]];
-        
+
         _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
     }
     // Or for some reason it is not...
     else {
-        _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: (scanning for barcodes)"];
-        _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
+        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
         _tcinFound = FALSE;
     }
 }
 
-- (NSString *)newSerial {
-    NSString *ser = @"100000000000001";
-    
-    
-    
-// TBD - Begin Serial Number Generator code block
-    
-    //Replace this with the new serial number generator
-    if ([ser length] > 15) {
-        // GIAI serial number max = 15
-        ser = [ser substringToIndex:15];
-    }
+- (void) generateAlertWithTitle:(NSString *)title andMessage:(NSString *)message
+{
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:okAction];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
 
-    // The serial number is 15 digits
-    for (int i=(int)[ser length]; i<15; i++) {
-        ser = [NSString stringWithFormat:@"0%@", ser];
-    }
-    
-    // And should start with '10' to indicate the Commissioning Authority.
-    if (!([[ser substringToIndex:2] isEqualToString:@"10"])) {
-        ser = [NSString stringWithFormat:@"10%@", [ser substringFromIndex:2]];
-    }
-    
-// TBD - End Serial Number Generator code block
-    
-    
 
+- (NSString *)newSerial
+{
+    unsigned long long seed;
+
+    if (_zebraReaderName.length > 0) {
+        seed = [[_zebraReaderName substringFromIndex:6] longLongValue];
+    } else {
+        seed = 7725272730706;
+    }
+    NSString *ser = [SerialNumberGenerator newSerialWithSeed:seed];
     return ser;
 }
 
