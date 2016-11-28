@@ -58,6 +58,7 @@
     
     id <srfidISdkApi>               _rfidSdkApi;
     int                             _zebraReaderID;
+    NSString                        *_zebraReaderName;      // Could use this to further generate a unique serial number
     srfidStartTriggerConfig         *_startTriggerConfig;
     srfidStopTriggerConfig          *_stopTriggerConfig;
     srfidReportConfig               *_reportConfig;
@@ -188,6 +189,7 @@
     
     // Set Zebra scanner configurations used in srfidStartRapidRead
     _zebraReaderID = -1;
+    _zebraReaderName = @"";
     [self zebraInitializeRfidSdkWithAppSettings];
 }
 
@@ -295,6 +297,7 @@
         [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
         [_rfidSdkApi srfidTerminateCommunicationSession:_zebraReaderID];
         _zebraReaderID = -1;
+        _zebraReaderName = @"";
         [self zebraRapidRead];
         
         // Asking for RFID scans triggers battery life updates, so no need to do that here
@@ -314,6 +317,7 @@
         [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
         [_rfidSdkApi srfidTerminateCommunicationSession:_zebraReaderID];
         _zebraReaderID = -1;
+        _zebraReaderName = @"";
         [self zebraRapidRead];
         
         // Asking for RFID scans triggers battery life updates, so no need to do that here
@@ -572,10 +576,32 @@
                 
                 // All T2 backroom tags will encode the TCIN in GIAI format.
                 if ((upc.length == 12) || (upc.length == 14)) {
+                    
+                    // For scanReadEncode mode...
+                    if (_scanReadEncodeSwt.on == TRUE ) {
+                        
+                        // Manage a targeted reset here without all the overhead of a full reset.
+                        // Otherwise, this flow doesn't handle changes in the scanned UPC well,
+                        // particularly if the reader is still trying an asynchronous read.
+                        _rfidFound = FALSE;
+                        _encodeBtn.enabled = FALSE;
+                        _encoding = FALSE;
+                        [_oldEPC setString:@""];
+                        [_newEPC setString:@""];
+                        [self.view setBackgroundColor:_defaultBackgroundColor];
+                        
+                        // Hide the result images
+                        _successImg.hidden = TRUE;
+                        _failImg.hidden = TRUE;
 
-// TPM - we may need to manage some reset here, without all the overhead of a new zebraRapidRead
-// This flow doesn't handle changes in the scanned UPC well, particularly if the reader is still
-// trying to finish an encode, or any tag read for that matter, which all come asynchronously...
+                        // These are slightly different, but should happen before the call to zebraRapidRead.
+                        _rfidLbl.text = @"RFID: (reset the session!)";
+                        _rfidLbl.backgroundColor = UIColorFromRGB(0xCC9900);
+                        
+                        // If reading, stop and start scanning for tags again.
+                        [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
+                        [self zebraRapidRead];
+                    }
                     
                     // Set the interface
                     [_upcFld setText:upc];
@@ -743,7 +769,7 @@
 }
 
 - (NSString *)newSerial {
-    NSString *ser = @"040000000000001";
+    NSString *ser = @"100000000000001";
     
     
     
@@ -862,6 +888,11 @@
     }
 #endif
     
+    // Suspend tag reading while writing tags
+    if (_scanReadEncodeSwt.on == TRUE) {
+        [_rfidSdkApi srfidStopRapidRead:_zebraReaderID aStatusMessage:nil];
+    }
+    
     // Assume failure (many ways to fail)
     _tagEncoded = FALSE;
     
@@ -917,11 +948,13 @@
         _failImg.hidden = FALSE;
     }
     
-    // If our work is done
-    if (_tagEncoded == TRUE ){
-        
-        // In scanReadEncode mode keep looking for tags, otherwise reset for the rest
-        (_scanReadEncodeSwt.on == TRUE)? [self zebraRapidRead]:[_oldEPC setString:@""];
+    // For scanReadEncode, start reading tags again
+    if (_scanReadEncodeSwt.on == TRUE) {
+        [self zebraRapidRead];
+    }
+    // Otherwise, if a tag was encoded, clear the old string
+    else if (_tagEncoded) {
+        [_oldEPC setString:@""];
     }
 }
 
@@ -949,6 +982,7 @@
     
     // Set the reader
     _zebraReaderID = [activeReader getReaderID];
+    _zebraReaderName = [activeReader getReaderName];
     
     // Establish ASCII connection
     if ([_rfidSdkApi srfidEstablishAsciiConnection:_zebraReaderID aPassword:nil] == SRFID_RESULT_SUCCESS)
@@ -980,6 +1014,7 @@
         // Terminate sesssion
         [_rfidSdkApi srfidTerminateCommunicationSession:_zebraReaderID];
         _zebraReaderID = -1;
+        _zebraReaderName = @"";
         _rfidLbl.text = @"RFID: Zebra connection failed";
         _rfidLbl.backgroundColor = UIColorFromRGB(0xCC0000);
     }
@@ -1011,6 +1046,15 @@
                                NSLog(@"\nRFID tag read: %@\n", _oldEPC);
                            });
             return;
+        }
+        else {
+            dispatch_async(dispatch_get_main_queue(),
+                           ^{
+                               // New tag reads in this mode should clear the success flag...
+                               _successImg.hidden = TRUE;
+                               _failImg.hidden = TRUE;
+                           });
+
         }
     }
     // Otherwise, finish an encode and start reading for another
