@@ -56,7 +56,6 @@
     UIProgressView                  *_batteryLifeView;
     
     EPCEncoder                      *_encode;
-    Converter                       *_convert;
     
     id <srfidISdkApi>               _rfidSdkApi;
     int                             _zebraReaderID;
@@ -83,7 +82,6 @@
     
     // Initialize variables
     _encode = [EPCEncoder alloc];
-    _convert = [Converter alloc];
     _oldEPC = [[NSMutableString alloc] init];
     _newEPC = [[NSMutableString alloc] init];
     _lastDetectionString = [[NSMutableString alloc] init];
@@ -658,6 +656,7 @@
 
 /*!
  * @discussion Update the interface - All the edit fields point here, after you end the edit and hit return.
+  * @param sender ID of the sender
  */
 - (IBAction)update:(id)sender {
     
@@ -685,12 +684,9 @@
             tcin = [tcin substringToIndex:10];
             [_tcinFld setText:tcin];
         }
-        if ([tcin length] > 0) {
-            for (int i=(int)[tcin length]; i<10; i++) {
-                tcin = [NSString stringWithFormat:@"0%@", tcin];
-                [_tcinFld setText:tcin];
-            }
-        }
+        
+        // Set the TCIN
+        [self setNewTCIN:tcin];
     }
     
     [self updateAll];
@@ -708,6 +704,10 @@
     if (_scanReadManualSwt.on == TRUE) [self readyToEncode];
 }
 
+/*!
+ * @discussion Lookup the TCIN from the UPC
+ * @param upc code to lookup
+ */
 - (void)lookupTCIN:(NSString*)upc {
 
     // Begin by clearing out any previous TCIN
@@ -729,19 +729,16 @@
             if (error) {
                 [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
             } else {
-                NSString *tcin;
                 switch(tcins.count) {
                     case 0:
-                        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+                        [self generateAlertWithTitle:@"No TCIN Found" andMessage:@"The item scanned has no TCIN. Try again."];
                         break;
                     case 1:
-                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
-                        [self setTcinField:tcin];
+                        [self setNewTCIN:[NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]]];
                         break;
                     default:
-                        // TODO: display list of selectable tcins
-                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
-                        [self setTcinField:tcin];
+                        // TODO: display list of selectable tcins and images and have user select one
+                        [self setNewTCIN:[NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]]];
                         break;
                     }
             }
@@ -749,8 +746,11 @@
     }];
 }
 
-- (void) setTcinField:(NSString *)tcin
-{
+/*!
+ * @discussion Set the new TCIN in the interface.
+ * @param tcin to set
+ */
+- (void) setNewTCIN:(NSString *)tcin {
     // The TCIN is ready
     if ([tcin length] > 0 ) {
 
@@ -768,25 +768,37 @@
 
         _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
+        
+        // Ok, in the Encode modes, check if we are ready
+        if (_scanScanEncodeSwt.on == TRUE || _scanReadEncodeSwt.on == TRUE) {
+            [self readyToEncode];
+        }
     }
     // Or for some reason it is not...
     else {
-        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+        [self generateAlertWithTitle:@"No TCIN Found" andMessage:@"The item scanned has no TCIN. Try again."];
         _tcinFound = FALSE;
     }
 }
 
-- (void) generateAlertWithTitle:(NSString *)title andMessage:(NSString *)message
-{
+/*!
+ * @discussion Popup an alert.
+ * I've avoided blocking calls, as the logic flow is normally self correcting.  But a missing TCIN is a showstopper...
+ * Don't abuse this call.
+ * @param title of the popup
+ * @param message to popup
+ */
+- (void) generateAlertWithTitle:(NSString *)title andMessage:(NSString *)message {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
     [alertController addAction:okAction];
     [self presentViewController:alertController animated:YES completion:nil];
 }
 
-
-- (NSString *)newSerial
-{
+/*!
+ * @discussion Generate a new, randomized, serial number.
+ */
+- (NSString *)newSerial {
     unsigned long long seed;
 
     if (_zebraReaderName.length > 0) {
@@ -876,14 +888,14 @@
 
 // For debugging only!
 #ifdef DEBUG
-    // Test tag reset: check for one of the special reset barcodes, if found, encode with the reset value
-    if ([[_upcFld text] isEqual:@"999999999917"]){
+    // Test tag reset: check for one of the special reset TCINs, if found, encode with the reset value
+    if ([[_tcinFld text] isEqual:@"9999999917"]){
         [_newEPC setString:@"30304035A880C84000366A25"];
     }
-    else if ([[_upcFld text] isEqual:@"999999999924"]){
+    else if ([[_tcinFld text] isEqual:@"9999999924"]){
         [_newEPC setString:@"30304035A880C84000366A26"];
     }
-    else if ([[_upcFld text] isEqual:@"999999999931"]){
+    else if ([[_tcinFld text] isEqual:@"9999999931"]){
         [_newEPC setString:@"30304035A880C84000366A27"];
     }
 #endif
