@@ -10,6 +10,6 @@
 
 @interface TcinResolverService : NSObject
 
-+ (void)getTcinWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion;
++ (void)getTcinFromRedSkyWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion;
 
 @end

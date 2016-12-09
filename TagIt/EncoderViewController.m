@@ -727,31 +727,25 @@
         return;
     }
 
-    [TcinResolverService getTcinWithBarcode:upc andCompletion:^(NSError *error, NSArray *tcins){
+    [TcinResolverService getTcinFromRedSkyWithBarcode:upc andCompletion:^(NSError *error, NSArray *tcins){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
                 [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
             } else {
                 NSString *tcin;
-                // TODO: remove line below and uncomment switch block when ready to fully test
-                [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
-//                switch(tcins.count) {
-//                    case 0:
-//                        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
-//                        break;
-//                    case 1:
-//                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
-//                        [self setTcinField:tcin];
-//                        break;
-//                    default:
-//                        // TODO: display list of selectable tcins
-//                        _tcins = tcins;
-//                        [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
-//
-//                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
-//                        [self setTcinField:tcin];
-//                        break;
-//                    }
+                switch(tcins.count) {
+                    case 0:
+                        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+                        break;
+                    case 1:
+                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
+                        [self setTcinField:tcin];
+                        break;
+                    default:
+                        _tcins = tcins;
+                        [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
+                        break;
+                    }
             }
         });
     }];

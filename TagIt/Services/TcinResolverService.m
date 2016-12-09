@@ -10,7 +10,7 @@
 
 @implementation TcinResolverService
 
-+ (void)getTcinWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion
++ (void)getTcinFromRedSkyWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion
 {
     NSString *urlString = [NSString stringWithFormat:@"https://www.tgtappdata.com/v1/products/pdp/barcode/%@", barcode];
 
