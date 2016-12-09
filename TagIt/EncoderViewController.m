@@ -18,6 +18,7 @@
 #import "RfidSdkFactory.h"            // Zebra reader
 #import "SerialNumberGenerator.h"
 #import "TcinResolverService.h"
+#import "TcinSelectViewController.h"
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
@@ -66,6 +67,8 @@
     srfidReportConfig               *_reportConfig;
     srfidAccessConfig               *_accessConfig;
     srfidDynamicPowerConfig         *_dpoConfig;            // Only for writing tags
+
+    NSArray                         *_tcins;
 }
 @end
 
@@ -730,20 +733,25 @@
                 [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
             } else {
                 NSString *tcin;
-                switch(tcins.count) {
-                    case 0:
-                        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
-                        break;
-                    case 1:
-                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
-                        [self setTcinField:tcin];
-                        break;
-                    default:
-                        // TODO: display list of selectable tcins
-                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
-                        [self setTcinField:tcin];
-                        break;
-                    }
+                // TODO: remove line below and uncomment switch block when ready to fully test
+                [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
+//                switch(tcins.count) {
+//                    case 0:
+//                        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+//                        break;
+//                    case 1:
+//                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
+//                        [self setTcinField:tcin];
+//                        break;
+//                    default:
+//                        // TODO: display list of selectable tcins
+//                        _tcins = tcins;
+//                        [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
+//
+//                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
+//                        [self setTcinField:tcin];
+//                        break;
+//                    }
             }
         });
     }];
@@ -1145,14 +1153,31 @@
     NSLog(@"Zebra Reader - Event trigger notify: %@\n", ((triggerEvent == SRFID_TRIGGEREVENT_PRESSED)?@"Pressed":@"Released"));
 }
 
-/*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.identifier isEqualToString: @"showTcinSelect"]) {
+        UINavigationController *navController = segue.destinationViewController;
+        TcinSelectViewController *destinationVc = (TcinSelectViewController *)([navController topViewController]);
+
+        // TODO: remove when ready to fully test
+        NSArray* tempTcins = [NSArray array];
+        for (int i = 0; i < 5; i++) {
+            tempTcins = [tempTcins arrayByAddingObject:@"1234567890"];
+        }
+
+        destinationVc.delegate = self;
+        destinationVc.tcins = tempTcins;
+
+        // TODO: uncomment when ready to fully test
+//        destinationVc._tcins = _tcins;
+    }
+}
+
+#pragma mark - <TcinSelectDelegate>
+- (void) selectionMadeWithTcin:(NSString *)tcin {
+    [self setTcinField:tcin];
+}
 
 @end

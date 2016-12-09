@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TcinSelectDelegate.h"
 
-@interface EncoderViewController : UIViewController
+@interface EncoderViewController : UIViewController <TcinSelectDelegate>
 
 @end
