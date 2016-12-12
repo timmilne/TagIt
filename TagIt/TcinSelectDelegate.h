@@ -11,7 +11,7 @@
 
 @protocol TcinSelectDelegate <NSObject>
 
-- (void) selectionMadeWithProduct:(Product *)product;
+- (void) selectionMadeWithProduct:(Product *)selectedProduct;
 
 @end
 

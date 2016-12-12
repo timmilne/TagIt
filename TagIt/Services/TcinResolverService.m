@@ -11,7 +11,7 @@
 
 @implementation TcinResolverService
 
-+ (void)getT2idWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *products))completion {
++ (void)getT2idWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *productList))completion {
     NSArray* jsonData = [NSArray arrayWithObjects:
                          @{@"description": @"Product 1",
                            @"t2id" : @"1234567890",

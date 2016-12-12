@@ -68,12 +68,20 @@
     srfidReportConfig               *_reportConfig;
     srfidAccessConfig               *_accessConfig;
     srfidDynamicPowerConfig         *_dpoConfig;            // Only for writing tags
-
-    NSArray                         *_products;
 }
 @end
 
 @implementation EncoderViewController
+
+#pragma mark custom setters
+
+- (void)setProduct:(Product *)input {
+    product = input;
+    [self setTcinField:product.productId];
+}
+
+@synthesize product;
+@synthesize products;
 
 #define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:0.65]
 
@@ -728,20 +736,20 @@
         return;
     }
 
-    [TcinResolverService getT2idWithBarcode:upc andCompletion:^(NSError *error, NSArray *products){
+    [TcinResolverService getT2idWithBarcode:upc andCompletion:^(NSError *error, NSArray *productList){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
                 [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
             } else {
-                switch(products.count) {
+                switch(productList.count) {
                     case 0:
                         [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
                         break;
                     case 1:
-                        [self setTcinField:[NSString stringWithFormat:@"%@", [products objectAtIndex:0]]];
+                        product = [productList objectAtIndex:0];
                         break;
                     default:
-                        _products = products;
+                        self.products = productList;
                         [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
                         break;
                     }
@@ -1155,13 +1163,13 @@
         TcinSelectViewController *destinationVc = (TcinSelectViewController *)([navController topViewController]);
 
         destinationVc.delegate = self;
-        destinationVc.products = _products;
+        destinationVc.products = self.products;
     }
 }
 
 #pragma mark - <TcinSelectDelegate>
-- (void) selectionMadeWithProduct:(Product *)product {
-    [self setTcinField:product.productId];
+- (void) selectionMadeWithProduct:(Product *)selectedProduct {
+    self.product = selectedProduct;
 }
 
 @end

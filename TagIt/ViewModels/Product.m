@@ -13,7 +13,7 @@
 
 #pragma mark custom setters
 
-- (void) setProductImageName:(NSString *)input;
+- (void)setProductImageName:(NSString *)input;
 {
     productImageName = input;
 

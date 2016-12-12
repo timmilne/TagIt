@@ -8,7 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import "TcinSelectDelegate.h"
+#import "Product.h"
 
 @interface EncoderViewController : UIViewController <TcinSelectDelegate>
+
+@property (nonatomic) Product *product;
+@property (nonatomic) NSArray *products;
 
 @end
