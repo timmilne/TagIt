@@ -19,6 +19,7 @@
 #import "SerialNumberGenerator.h"
 #import "TcinResolverService.h"
 #import "TcinSelectViewController.h"
+#import "Product.h"
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
@@ -68,7 +69,7 @@
     srfidAccessConfig               *_accessConfig;
     srfidDynamicPowerConfig         *_dpoConfig;            // Only for writing tags
 
-    NSArray                         *_tcins;
+    NSArray                         *_products;
 }
 @end
 
@@ -727,22 +728,20 @@
         return;
     }
 
-    [TcinResolverService getTcinFromRedSkyWithBarcode:upc andCompletion:^(NSError *error, NSArray *tcins){
+    [TcinResolverService getT2idWithBarcode:upc andCompletion:^(NSError *error, NSArray *products){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
                 [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
             } else {
-                NSString *tcin;
-                switch(tcins.count) {
+                switch(products.count) {
                     case 0:
                         [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
                         break;
                     case 1:
-                        tcin = [NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]];
-                        [self setTcinField:tcin];
+                        [self setTcinField:[NSString stringWithFormat:@"%@", [products objectAtIndex:0]]];
                         break;
                     default:
-                        _tcins = tcins;
+                        _products = products;
                         [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
                         break;
                     }
@@ -1155,23 +1154,14 @@
         UINavigationController *navController = segue.destinationViewController;
         TcinSelectViewController *destinationVc = (TcinSelectViewController *)([navController topViewController]);
 
-        // TODO: remove when ready to fully test
-        NSArray* tempTcins = [NSArray array];
-        for (int i = 0; i < 5; i++) {
-            tempTcins = [tempTcins arrayByAddingObject:@"1234567890"];
-        }
-
         destinationVc.delegate = self;
-        destinationVc.tcins = tempTcins;
-
-        // TODO: uncomment when ready to fully test
-//        destinationVc._tcins = _tcins;
+        destinationVc.products = _products;
     }
 }
 
 #pragma mark - <TcinSelectDelegate>
-- (void) selectionMadeWithTcin:(NSString *)tcin {
-    [self setTcinField:tcin];
+- (void) selectionMadeWithProduct:(Product *)product {
+    [self setTcinField:product.productId];
 }
 
 @end
