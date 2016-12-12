@@ -7,11 +7,35 @@
 //
 
 #import "TcinResolverService.h"
+#import "Product.h"
 
 @implementation TcinResolverService
 
-+ (void)getTcinFromRedSkyWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion
-{
++ (void)getT2idWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *products))completion {
+    NSArray* jsonData = [NSArray arrayWithObjects:
+                         @{@"description": @"Product 1",
+                           @"t2id" : @"1234567890",
+                           @"variants" : @"{color: blue, size: S}",
+                           @"image" : @"http://target.scene7.com/is/image/Target/51339000"},
+                         @{@"description": @"Product 2",
+                           @"t2id" : @"0987654321",
+                           @"variants" : @"{color: blue, size: M}",
+                           @"image" : @"http://target.scene7.com/is/image/Target/51339000"},
+                         @{@"description": @"Product 3",
+                           @"t2id" : @"6574839201",
+                           @"variants" : @"{color: blue, size: L}",
+                           @"image" : @"http://target.scene7.com/is/image/Target/51339000"},
+                         nil];
+
+    NSMutableArray* products = [[NSMutableArray alloc] init];
+    for (int i = 0; i < jsonData.count; i++) {
+        [products addObject:[[Product alloc] initWithJson:[jsonData objectAtIndex:i]]];
+    }
+
+    completion(nil, products);
+}
+
++ (void)getTcinFromRedSkyWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion {
     NSString *urlString = [NSString stringWithFormat:@"https://www.tgtappdata.com/v1/products/pdp/barcode/%@", barcode];
 
     NSURLComponents *components = [NSURLComponents componentsWithString:urlString];
@@ -41,8 +65,7 @@
       }] resume];
 }
 
-+ (NSArray*)parseTcinsFromArray:(NSArray*)jsonData
-{
++ (NSArray*)parseTcinsFromArray:(NSArray*)jsonData {
     NSMutableArray *tcins = [[NSMutableArray alloc] init];
     for (int i = 0; i < jsonData.count; i++) {
         NSDictionary *item = [jsonData objectAtIndex:i];
@@ -50,6 +73,21 @@
     }
 
     return tcins;
+}
+
++ (void)getProductImageWithUrl:(NSString*)url withCompletion:(void (^)(NSError *error, UIImage *image))completion
+{
+    NSURLSession *session = [NSURLSession sharedSession];
+
+    [[session dataTaskWithURL:[NSURL URLWithString:url]
+            completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+      {
+          if (error) {
+              completion(error, nil);
+          } else {
+              completion(nil, [UIImage imageWithData:data]);
+          }
+      }] resume];
 }
 
 @end

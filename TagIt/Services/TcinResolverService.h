@@ -6,10 +6,12 @@
 //  Copyright © 2016 Tim.Milne. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface TcinResolverService : NSObject
 
 + (void)getTcinFromRedSkyWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion;
++ (void)getT2idWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion;
++ (void)getProductImageWithUrl:(NSString*)url withCompletion:(void (^)(NSError *error, UIImage *image))completion;
 
 @end
