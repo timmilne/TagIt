@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TcinResolverService : NSObject
+@interface ProductResolverService : NSObject
 
 + (void)getTcinFromRedSkyWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion;
 + (void)getT2idWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion;

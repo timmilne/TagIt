@@ -6,9 +6,9 @@
 //  Copyright © 2016 Tim.Milne. All rights reserved.
 //
 
-#import "TcinTableViewCell.h"
+#import "ProductTableViewCell.h"
 
-@implementation TcinTableViewCell
+@implementation ProductTableViewCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -21,11 +21,11 @@
     // Configure the view for the selected state
 }
 
-- (void)setupCellWithDescription:(NSString *)description andTcin:(NSString *)tcin andImage:(UIImage *) image
+- (void)setupCellWithDescription:(NSString *)description andId:(NSString *)tcin andImage:(UIImage *) image
 {
-    self.tcinDescription.text = description;
-    self.tcin.text = tcin;
-    self.tcinImageView.image = image;
+    self.productDescriptionLabel.text = description;
+    self.productIdLabel.text = tcin;
+    self.productImageView.image = image;
 }
 
 @end

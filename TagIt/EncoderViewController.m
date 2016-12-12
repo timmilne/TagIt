@@ -17,8 +17,8 @@
 #import <EPCEncoder/Converter.h>      // To convert to binary for comparison
 #import "RfidSdkFactory.h"            // Zebra reader
 #import "SerialNumberGenerator.h"
-#import "TcinResolverService.h"
-#import "TcinSelectViewController.h"
+#import "ProductResolverService.h"
+#import "ProductSelectViewController.h"
 #import "Product.h"
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
@@ -736,7 +736,7 @@
         return;
     }
 
-    [TcinResolverService getT2idWithBarcode:upc andCompletion:^(NSError *error, NSArray *productList){
+    [ProductResolverService getT2idWithBarcode:upc andCompletion:^(NSError *error, NSArray *productList){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
                 [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
@@ -1160,7 +1160,7 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     if ([segue.identifier isEqualToString: @"showTcinSelect"]) {
         UINavigationController *navController = segue.destinationViewController;
-        TcinSelectViewController *destinationVc = (TcinSelectViewController *)([navController topViewController]);
+        ProductSelectViewController *destinationVc = (ProductSelectViewController *)([navController topViewController]);
 
         destinationVc.delegate = self;
         destinationVc.products = self.products;

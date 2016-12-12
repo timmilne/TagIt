@@ -7,7 +7,7 @@
 //
 
 #import "Product.h"
-#import "TcinResolverService.h"
+#import "ProductResolverService.h"
 
 @implementation Product
 
@@ -17,7 +17,7 @@
 {
     productImageName = input;
 
-    [TcinResolverService getProductImageWithUrl:input withCompletion:^(NSError *error, UIImage *image) {
+    [ProductResolverService getProductImageWithUrl:input withCompletion:^(NSError *error, UIImage *image) {
         self.productImage = image;
         [self.delegate productImageLoaded:self.productId];
     }];

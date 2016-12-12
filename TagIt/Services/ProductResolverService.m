@@ -6,10 +6,10 @@
 //  Copyright © 2016 Tim.Milne. All rights reserved.
 //
 
-#import "TcinResolverService.h"
+#import "ProductResolverService.h"
 #import "Product.h"
 
-@implementation TcinResolverService
+@implementation ProductResolverService
 
 + (void)getT2idWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *productList))completion {
     NSArray* jsonData = [NSArray arrayWithObjects:
@@ -60,7 +60,7 @@
           } else {
               NSError *jsonParsingError = nil;
               NSArray *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonParsingError];
-              completion(nil, [TcinResolverService parseTcinsFromArray:json]);
+              completion(nil, [ProductResolverService parseTcinsFromArray:json]);
           }
       }] resume];
 }

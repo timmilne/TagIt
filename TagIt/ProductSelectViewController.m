@@ -6,19 +6,19 @@
 //  Copyright © 2016 Tim.Milne. All rights reserved.
 //
 
-#import "TcinSelectViewController.h"
-#import "TcinTableViewCell.h"
+#import "ProductSelectViewController.h"
+#import "ProductTableViewCell.h"
 #import "Product.h"
 
-@interface TcinSelectViewController ()
+@interface ProductSelectViewController ()
 
 @property (nonatomic) NSIndexPath *selectedPath;
 
 @end
 
-@implementation TcinSelectViewController
+@implementation ProductSelectViewController
 
-static NSString * const reuseIdentifier = @"TcinCell";
+static NSString * const reuseIdentifier = @"ProductCell";
 
 @synthesize delegate;
 @synthesize products;
@@ -49,10 +49,10 @@ static NSString * const reuseIdentifier = @"TcinCell";
 
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    TcinTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
+    ProductTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
 
     if (cell == nil) {
-        [self.tableView registerNib:[UINib nibWithNibName:@"TcinTableViewCell" bundle:nil] forCellReuseIdentifier:reuseIdentifier];
+        [self.tableView registerNib:[UINib nibWithNibName:@"ProductTableViewCell" bundle:nil] forCellReuseIdentifier:reuseIdentifier];
         cell = [self.tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
     }
 
@@ -64,7 +64,7 @@ static NSString * const reuseIdentifier = @"TcinCell";
 
     Product *product = [products objectAtIndex:indexPath.row];
     product.delegate = self;
-    [cell setupCellWithDescription:product.productDescription andTcin:product.productId andImage:product.productImage];
+    [cell setupCellWithDescription:product.productDescription andId:product.productId andImage:product.productImage];
     
     return cell;
 }

@@ -10,7 +10,7 @@
 #import "TcinSelectDelegate.h"
 #import "ProductDelegate.h"
 
-@interface TcinSelectViewController : UITableViewController <ProductDelegate>
+@interface ProductSelectViewController : UITableViewController <ProductDelegate>
 
 @property (nonatomic, weak) id <TcinSelectDelegate> delegate;
 @property NSArray *products;
