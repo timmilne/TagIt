@@ -8,11 +8,12 @@
 
 #import <UIKit/UIKit.h>
 #import "TcinSelectDelegate.h"
+#import "ProductDelegate.h"
 
-@interface TcinSelectViewController : UITableViewController
+@interface TcinSelectViewController : UITableViewController <ProductDelegate>
 
 @property (nonatomic, weak) id <TcinSelectDelegate> delegate;
-@property NSArray *tcins;
+@property NSArray *products;
 
 - (IBAction)doneSelecting:(id)sender;
 
