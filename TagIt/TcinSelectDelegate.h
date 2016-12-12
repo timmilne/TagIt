@@ -7,10 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Product.h"
 
 @protocol TcinSelectDelegate <NSObject>
 
-- (void) selectionMadeWithTcin:(NSString *)tcin;
+- (void) selectionMadeWithProduct:(Product *)product;
 
 @end
 
