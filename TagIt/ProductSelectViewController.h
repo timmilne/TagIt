@@ -7,12 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "TcinSelectDelegate.h"
+#import "ProductSelectDelegate.h"
 #import "ProductDelegate.h"
 
 @interface ProductSelectViewController : UITableViewController <ProductDelegate>
 
-@property (nonatomic, weak) id <TcinSelectDelegate> delegate;
+@property (nonatomic, weak) id <ProductSelectDelegate> delegate;
 @property NSArray *products;
 
 - (IBAction)doneSelecting:(id)sender;
