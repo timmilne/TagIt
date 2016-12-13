@@ -10,6 +10,8 @@
 
 @implementation ProductTableViewCell
 
+@synthesize delegate;
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
@@ -19,6 +21,10 @@
     [super setSelected:selected animated:animated];
 
     // Configure the view for the selected state
+}
+
+- (IBAction)moreInfo:(id)sender {
+    [delegate cellMoreInfoButtonPressed:self.productIdLabel.text];
 }
 
 - (void)setupCellWithDescription:(NSString *)description andId:(NSString *)tcin andImage:(UIImage *) image

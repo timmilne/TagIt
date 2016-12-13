@@ -11,7 +11,7 @@
 
 @protocol ProductSelectDelegate <NSObject>
 
-- (void) selectionMadeWithProduct:(Product *)selectedProduct;
+- (void)selectionMadeWithProduct:(Product *)selectedProduct;
 
 @end
 

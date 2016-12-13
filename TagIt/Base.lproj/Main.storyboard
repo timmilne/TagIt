@@ -231,13 +231,7 @@
                         </connections>
                     </tableView>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="Select Tcin" id="fEf-Bb-k2M">
-                        <barButtonItem key="rightBarButtonItem" title="Done" id="52l-km-g4q">
-                            <connections>
-                                <action selector="doneSelecting:" destination="jQd-Ib-YTZ" id="fyu-Ri-KJh"/>
-                            </connections>
-                        </barButtonItem>
-                    </navigationItem>
+                    <navigationItem key="navigationItem" title="Select Tcin" id="fEf-Bb-k2M"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ymx-Gx-zzu" userLabel="First Responder" sceneMemberID="firstResponder"/>

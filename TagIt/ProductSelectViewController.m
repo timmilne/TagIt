@@ -12,7 +12,7 @@
 
 @interface ProductSelectViewController ()
 
-@property (nonatomic) NSIndexPath *selectedPath;
+@property (nonatomic) NSInteger selectedPath;
 
 @end
 
@@ -24,17 +24,51 @@ static NSString * const reuseIdentifier = @"ProductCell";
 @synthesize products;
 @synthesize selectedPath;
 
-#pragma mark IBAction Implementations
-
-- (IBAction)doneSelecting:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:nil];
-    [delegate selectionMadeWithProduct:[products objectAtIndex:selectedPath.row]];
-}
-
 #pragma mark iOS View Lifecycle
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+#pragma mark Utility Methods
+
+- (int)findProductIndex:(NSString *)productId {
+    int index = -1;
+
+    for (int i = 0; i < self.products.count; i++) {
+
+        if ([((Product *)[self.products objectAtIndex:i]).productId isEqualToString:productId])
+        {
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+}
+
+- (void) generateProductInfoAlertWithIndex:(int)index {
+    Product *product = [products objectAtIndex:index];
+
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:product.productDescription
+                                                            message:[NSString stringWithFormat:@"T2ID:\n%@\nProduct Variants\n%@", product.productId, product.productVariantBlob]
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction *selectAction = [UIAlertAction actionWithTitle:@"select" style:UIAlertActionStyleDefault handler:^void (UIAlertAction *action)
+                                   {
+                                       self.selectedPath = index;
+                                       [self selectProductAndDismissController];
+                                   }];
+    UIAlertAction *dismissAction = [UIAlertAction actionWithTitle:@"dismiss" style:UIAlertActionStyleCancel handler:nil];
+    [alertController addAction:selectAction];
+    [alertController addAction:dismissAction];
+
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)selectProductAndDismissController {
+    [self dismissViewControllerAnimated:YES completion:nil];
+    [delegate selectionMadeWithProduct:[products objectAtIndex:selectedPath]];
 }
 
 #pragma mark - Table view data source
@@ -56,15 +90,10 @@ static NSString * const reuseIdentifier = @"ProductCell";
         cell = [self.tableView dequeueReusableCellWithIdentifier:reuseIdentifier];
     }
 
-    if (indexPath.row == self.selectedPath.row) {
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
-    } else {
-        cell.accessoryType = UITableViewCellAccessoryNone;
-    }
-
     Product *product = [products objectAtIndex:indexPath.row];
     product.delegate = self;
     [cell setupCellWithDescription:product.productDescription andId:product.productId andImage:product.productImage];
+    cell.delegate = self;
     
     return cell;
 }
@@ -76,24 +105,14 @@ static NSString * const reuseIdentifier = @"ProductCell";
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    self.selectedPath = indexPath;
-    [self.tableView reloadData];
+    self.selectedPath = indexPath.row;
+    [self selectProductAndDismissController];
 }
 
 #pragma mark - ProductDelegate
 
-- (void) productImageLoaded:(NSString *)productId {
-    int index = -1;
-
-    for (int i = 0; i < self.products.count; i++) {
-
-        if ([((Product *)[self.products objectAtIndex:i]).productId isEqualToString:productId])
-        {
-            index = i;
-            break;
-        }
-    }
-
+- (void)productImageLoaded:(NSString *)productId {
+    int index = [self findProductIndex:productId];
     NSArray *indexes = [self.tableView indexPathsForVisibleRows];
 
     for (NSIndexPath *indexPath in indexes) {
@@ -105,6 +124,12 @@ static NSString * const reuseIdentifier = @"ProductCell";
             });
         }
     }
+}
+
+#pragma mark - ProductTableViewCellDelegate
+
+- (void)cellMoreInfoButtonPressed:(NSString *)productId {
+    [self generateProductInfoAlertWithIndex:[self findProductIndex:productId]];
 }
 
 @end

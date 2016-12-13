@@ -9,12 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "ProductSelectDelegate.h"
 #import "ProductDelegate.h"
+#import "ProductTableViewCellDelegate.h"
 
-@interface ProductSelectViewController : UITableViewController <ProductDelegate>
+@interface ProductSelectViewController : UITableViewController <ProductDelegate, ProductTableViewCellDelegate>
 
 @property (nonatomic, weak) id <ProductSelectDelegate> delegate;
 @property NSArray *products;
-
-- (IBAction)doneSelecting:(id)sender;
 
 @end
