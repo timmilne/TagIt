@@ -739,11 +739,11 @@
     [ProductResolverService getT2idWithBarcode:upc andCompletion:^(NSError *error, NSArray *productList){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
-                [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
+                [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the T2ID."];
             } else {
                 switch(productList.count) {
                     case 0:
-                        [self generateAlertWithTitle:@"No Tcin Found" andMessage:@"The item scanned has no tcin. Try again."];
+                        [self generateAlertWithTitle:@"No T2ID Found" andMessage:@"The item scanned has no T2ID. Try again."];
                         break;
                     case 1:
                         product = [productList objectAtIndex:0];
