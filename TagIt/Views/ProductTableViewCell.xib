@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="ProductCell" rowHeight="161" id="Wt1-aM-tmp" customClass="ProductTableViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="415" height="142"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Wt1-aM-tmp" id="ohV-Pi-siT">
+                <rect key="frame" x="0.0" y="0.0" width="415" height="141"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="JL8-03-gVt">
+                        <rect key="frame" x="16" y="16" width="100" height="109"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="100" id="xx8-ft-hlR"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Lorem ipsum dolor sit" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="s3Y-S9-Ls4">
+                        <rect key="frame" x="124" y="16" width="283" height="29"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="9999999999" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="G1b-Uc-dIc">
+                        <rect key="frame" x="124" y="104" width="105" height="21"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="infoLight" showsTouchWhenHighlighted="YES" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xi6-bQ-fdA">
+                        <rect key="frame" x="317" y="58.5" width="90" height="75"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="90" id="9FS-PK-Brn"/>
+                            <constraint firstAttribute="height" constant="75" id="Trp-y2-haj"/>
+                        </constraints>
+                        <connections>
+                            <action selector="moreInfo:" destination="Wt1-aM-tmp" eventType="touchUpInside" id="UYP-fK-awv"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="xi6-bQ-fdA" firstAttribute="trailing" secondItem="ohV-Pi-siT" secondAttribute="trailingMargin" id="6GF-pJ-TKJ"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="JL8-03-gVt" secondAttribute="bottom" constant="8" id="9mn-Tk-knF"/>
+                    <constraint firstItem="G1b-Uc-dIc" firstAttribute="leading" secondItem="JL8-03-gVt" secondAttribute="trailing" constant="8" id="D20-f0-QfO"/>
+                    <constraint firstItem="JL8-03-gVt" firstAttribute="leading" secondItem="ohV-Pi-siT" secondAttribute="leadingMargin" constant="8" id="DzK-uP-8QO"/>
+                    <constraint firstItem="JL8-03-gVt" firstAttribute="top" secondItem="ohV-Pi-siT" secondAttribute="topMargin" constant="8" id="J1I-HZ-1Dw"/>
+                    <constraint firstItem="s3Y-S9-Ls4" firstAttribute="top" secondItem="ohV-Pi-siT" secondAttribute="topMargin" constant="8" id="QKk-oq-eJk"/>
+                    <constraint firstAttribute="bottomMargin" secondItem="G1b-Uc-dIc" secondAttribute="bottom" constant="8" id="bps-MA-60c"/>
+                    <constraint firstItem="s3Y-S9-Ls4" firstAttribute="leading" secondItem="JL8-03-gVt" secondAttribute="trailing" constant="8" id="eNy-3t-VSJ"/>
+                    <constraint firstItem="xi6-bQ-fdA" firstAttribute="bottom" secondItem="ohV-Pi-siT" secondAttribute="bottomMargin" id="mO6-uj-gZ7"/>
+                    <constraint firstAttribute="trailingMargin" secondItem="s3Y-S9-Ls4" secondAttribute="trailing" id="mji-aK-mTa"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="productDescriptionLabel" destination="s3Y-S9-Ls4" id="C3A-s0-mF4"/>
+                <outlet property="productIdLabel" destination="G1b-Uc-dIc" id="3ZR-8H-4AF"/>
+                <outlet property="productImageView" destination="JL8-03-gVt" id="KiZ-uF-nSs"/>
+            </connections>
+            <point key="canvasLocation" x="-253.5" y="-277"/>
+        </tableViewCell>
+    </objects>
+</document>
