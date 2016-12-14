@@ -746,7 +746,7 @@
                         [self generateAlertWithTitle:@"No T2ID Found" andMessage:@"The item scanned has no T2ID. Try again."];
                         break;
                     case 1:
-                        product = [productList objectAtIndex:0];
+                        self.product = [productList objectAtIndex:0];
                         break;
                     default:
                         self.products = productList;
