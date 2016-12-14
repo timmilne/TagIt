@@ -12,27 +12,63 @@
 @implementation ProductResolverService
 
 + (void)getT2idWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *productList))completion {
-    NSArray* jsonData = [NSArray arrayWithObjects:
-                         @{@"description": @"Product 1",
-                           @"t2id" : @"1234567890",
-                           @"variants" : @"{color: blue, size: S}",
-                           @"image" : @"http://target.scene7.com/is/image/Target/51339000"},
-                         @{@"description": @"Product 2",
-                           @"t2id" : @"0987654321",
-                           @"variants" : @"{color: blue, size: M}",
-                           @"image" : @"http://target.scene7.com/is/image/Target/51339000"},
-                         @{@"description": @"Product 3",
-                           @"t2id" : @"6574839201",
-                           @"variants" : @"{color: blue, size: L}",
-                           @"image" : @"http://target.scene7.com/is/image/Target/51339000"},
-                         nil];
+    NSString *postString = [NSString stringWithFormat:
+                            @"{"
+                            "  \"query\": \"{findByVal_ProductLookup(val: \\\"%@\\\") {"
+                            "      type: __typename"        // BARCODE or T2Id
+                            "      ... on BARCODE {"
+                            "        brcdVal: val"          // The barcode (original UPC)
+                            "        t2Ids {"
+                            "          t2IdVal: val"        // The T2Id
+                            "          description"
+                            "          primaryImage"
+                            "          variation"           // If available, a json blob containing size, color, etc.
+                            "        }"
+                            "      }"
+                            "    }"
+                            "  }\""
+                            "}",
+                            barcode];
 
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc]
+                                    initWithURL: [NSURL URLWithString:@"http://40.83.191.150:8082/graphql"]];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-type"];
+    [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[postString length]]
+   forHTTPHeaderField:@"Content-length"];
+    [request setHTTPBody:[postString dataUsingEncoding:NSUTF8StringEncoding]];
+
+    NSURLSession *session = [NSURLSession sharedSession];
+
+    [[session dataTaskWithRequest:request
+                completionHandler:^(NSData *data, NSURLResponse *response, NSError *error)
+      {
+          NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+          if (error || statusCode != 200) {
+              completion(error, nil);
+          } else {
+              completion(nil, [self parseProductsFromArray:data]);
+          }
+      }] resume];
+}
+
++ (NSArray*)parseProductsFromArray:(NSData*)data {
+    NSError *jsonParsingError = nil;
+    NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&jsonParsingError];
+    NSDictionary *productLookupDictionary = [json objectForKey:@"data"];
+    NSArray *productLookupArray = [productLookupDictionary objectForKey:@"findByVal_ProductLookup"];
+    NSDictionary *productLookup = [productLookupArray objectAtIndex:0];
+    NSArray *t2Ids = [productLookup objectForKey:@"t2Ids"];
+
+    // convert array of NSDictionaries into and array of Products
     NSMutableArray* products = [[NSMutableArray alloc] init];
-    for (int i = 0; i < jsonData.count; i++) {
-        [products addObject:[[Product alloc] initWithJson:[jsonData objectAtIndex:i]]];
+    for (int i = 0; i < t2Ids.count; i++) {
+        if (![[[t2Ids objectAtIndex:i] objectForKey:@"description"] isEqual: @"not found"]) {
+            [products addObject:[[Product alloc] initWithJson:[t2Ids objectAtIndex:i]]];
+        }
     }
 
-    completion(nil, products);
+    return products;
 }
 
 + (void)getTcinFromRedSkyWithBarcode:(NSString*)barcode andCompletion:(void (^)(NSError *error, NSArray *tcins))completion {
