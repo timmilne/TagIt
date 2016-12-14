@@ -25,8 +25,12 @@
 		B7F771511C1B855E006D8FF9 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7F771501C1B855E006D8FF9 /* AudioToolbox.framework */; };
 		B7F771531C1B856F006D8FF9 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7F771521C1B856F006D8FF9 /* MediaPlayer.framework */; };
 		B7F771551C1B857F006D8FF9 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B7F771541C1B857F006D8FF9 /* SystemConfiguration.framework */; };
-		D7CFA7EF1DECB659009DA978 /* SerialNumberGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D7CFA7EC1DECB659009DA978 /* SerialNumberGenerator.m */; };
-		D7CFA7F01DECB659009DA978 /* TcinResolverService.m in Sources */ = {isa = PBXBuildFile; fileRef = D7CFA7EE1DECB659009DA978 /* TcinResolverService.m */; };
+		D7CFA7F31DECD684009DA978 /* ProductSelectViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D7CFA7F21DECD684009DA978 /* ProductSelectViewController.m */; };
+		D7F4C6B51DFA059F0022F363 /* ProductTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = D7F4C6B41DFA059F0022F363 /* ProductTableViewCell.m */; };
+		D7F4C6B91DFA07030022F363 /* ProductTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = D7F4C6B81DFA07030022F363 /* ProductTableViewCell.xib */; };
+		D7F4C6C01DFB581E0022F363 /* SerialNumberGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = D7F4C6BD1DFB581E0022F363 /* SerialNumberGenerator.m */; };
+		D7F4C6C11DFB581E0022F363 /* ProductResolverService.m in Sources */ = {isa = PBXBuildFile; fileRef = D7F4C6BF1DFB581E0022F363 /* ProductResolverService.m */; };
+		D7F4C6C51DFF091C0022F363 /* Product.m in Sources */ = {isa = PBXBuildFile; fileRef = D7F4C6C41DFF091C0022F363 /* Product.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -80,10 +84,20 @@
 		B7F771501C1B855E006D8FF9 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		B7F771521C1B856F006D8FF9 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		B7F771541C1B857F006D8FF9 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
-		D7CFA7EB1DECB659009DA978 /* SerialNumberGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SerialNumberGenerator.h; sourceTree = "<group>"; };
-		D7CFA7EC1DECB659009DA978 /* SerialNumberGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SerialNumberGenerator.m; sourceTree = "<group>"; };
-		D7CFA7ED1DECB659009DA978 /* TcinResolverService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TcinResolverService.h; sourceTree = "<group>"; };
-		D7CFA7EE1DECB659009DA978 /* TcinResolverService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TcinResolverService.m; sourceTree = "<group>"; };
+		D7CFA7F11DECD684009DA978 /* ProductSelectViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductSelectViewController.h; sourceTree = "<group>"; };
+		D7CFA7F21DECD684009DA978 /* ProductSelectViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductSelectViewController.m; sourceTree = "<group>"; };
+		D7F4C6B31DFA059F0022F363 /* ProductTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductTableViewCell.h; sourceTree = "<group>"; };
+		D7F4C6B41DFA059F0022F363 /* ProductTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductTableViewCell.m; sourceTree = "<group>"; };
+		D7F4C6B81DFA07030022F363 /* ProductTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProductTableViewCell.xib; sourceTree = "<group>"; };
+		D7F4C6BA1DFB53E30022F363 /* ProductSelectDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ProductSelectDelegate.h; sourceTree = "<group>"; };
+		D7F4C6BC1DFB581E0022F363 /* SerialNumberGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SerialNumberGenerator.h; sourceTree = "<group>"; };
+		D7F4C6BD1DFB581E0022F363 /* SerialNumberGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SerialNumberGenerator.m; sourceTree = "<group>"; };
+		D7F4C6BE1DFB581E0022F363 /* ProductResolverService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductResolverService.h; sourceTree = "<group>"; };
+		D7F4C6BF1DFB581E0022F363 /* ProductResolverService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProductResolverService.m; sourceTree = "<group>"; };
+		D7F4C6C31DFF09070022F363 /* Product.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Product.h; sourceTree = "<group>"; };
+		D7F4C6C41DFF091C0022F363 /* Product.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Product.m; sourceTree = "<group>"; };
+		D7F4C6C61DFF0D500022F363 /* ProductDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductDelegate.h; sourceTree = "<group>"; };
+		D7F4C6CA1E0057F60022F363 /* ProductTableViewCellDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProductTableViewCellDelegate.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -136,16 +150,18 @@
 		B70244621B018CF600B9B47F /* TagIt */ = {
 			isa = PBXGroup;
 			children = (
-				D7CFA7EB1DECB659009DA978 /* SerialNumberGenerator.h */,
-				D7CFA7EC1DECB659009DA978 /* SerialNumberGenerator.m */,
-				D7CFA7ED1DECB659009DA978 /* TcinResolverService.h */,
-				D7CFA7EE1DECB659009DA978 /* TcinResolverService.m */,
 				B70244671B018CF600B9B47F /* AppDelegate.h */,
 				B70244681B018CF600B9B47F /* AppDelegate.m */,
 				B70244891B018D7700B9B47F /* EncoderViewController.h */,
 				B702448A1B018D7700B9B47F /* EncoderViewController.m */,
 				B7117D3E1B33362A00968426 /* NavigationController.h */,
 				B7117D3F1B33362A00968426 /* NavigationController.m */,
+				D7CFA7F11DECD684009DA978 /* ProductSelectViewController.h */,
+				D7CFA7F21DECD684009DA978 /* ProductSelectViewController.m */,
+				D7F4C6BA1DFB53E30022F363 /* ProductSelectDelegate.h */,
+				D7F4C6BB1DFB57F90022F363 /* Services */,
+				D7F4C6C21DFF08BE0022F363 /* ViewModels */,
+				D7F4C6B21DFA05610022F363 /* Views */,
 				B702446D1B018CF600B9B47F /* Main.storyboard */,
 				B70244701B018CF600B9B47F /* Images.xcassets */,
 				B70244721B018CF600B9B47F /* LaunchScreen.xib */,
@@ -235,6 +251,38 @@
 			name = Scanner;
 			sourceTree = "<group>";
 		};
+		D7F4C6B21DFA05610022F363 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				D7F4C6B31DFA059F0022F363 /* ProductTableViewCell.h */,
+				D7F4C6B41DFA059F0022F363 /* ProductTableViewCell.m */,
+				D7F4C6B81DFA07030022F363 /* ProductTableViewCell.xib */,
+				D7F4C6CA1E0057F60022F363 /* ProductTableViewCellDelegate.h */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		D7F4C6BB1DFB57F90022F363 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				D7F4C6BC1DFB581E0022F363 /* SerialNumberGenerator.h */,
+				D7F4C6BD1DFB581E0022F363 /* SerialNumberGenerator.m */,
+				D7F4C6BE1DFB581E0022F363 /* ProductResolverService.h */,
+				D7F4C6BF1DFB581E0022F363 /* ProductResolverService.m */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		D7F4C6C21DFF08BE0022F363 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				D7F4C6C31DFF09070022F363 /* Product.h */,
+				D7F4C6C41DFF091C0022F363 /* Product.m */,
+				D7F4C6C61DFF0D500022F363 /* ProductDelegate.h */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -320,6 +368,7 @@
 				B702446F1B018CF600B9B47F /* Main.storyboard in Resources */,
 				B70244741B018CF600B9B47F /* LaunchScreen.xib in Resources */,
 				B70244711B018CF600B9B47F /* Images.xcassets in Resources */,
+				D7F4C6B91DFA07030022F363 /* ProductTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -338,11 +387,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				B702448B1B018D7700B9B47F /* EncoderViewController.m in Sources */,
-				D7CFA7F01DECB659009DA978 /* TcinResolverService.m in Sources */,
 				B70244691B018CF600B9B47F /* AppDelegate.m in Sources */,
+				D7F4C6C11DFB581E0022F363 /* ProductResolverService.m in Sources */,
+				D7F4C6C51DFF091C0022F363 /* Product.m in Sources */,
+				D7F4C6C01DFB581E0022F363 /* SerialNumberGenerator.m in Sources */,
+				D7CFA7F31DECD684009DA978 /* ProductSelectViewController.m in Sources */,
 				B7117D401B33362A00968426 /* NavigationController.m in Sources */,
 				B70244661B018CF600B9B47F /* main.m in Sources */,
-				D7CFA7EF1DECB659009DA978 /* SerialNumberGenerator.m in Sources */,
+				D7F4C6B51DFA059F0022F363 /* ProductTableViewCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
