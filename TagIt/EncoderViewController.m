@@ -76,7 +76,7 @@
 
 - (void)setProduct:(Product *)input {
     product = input;
-    [self setTcinField:product.productId];
+    [self setNewTCIN:product.productId];
 }
 
 @synthesize product;
