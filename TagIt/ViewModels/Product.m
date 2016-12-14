@@ -34,7 +34,7 @@
 
     if (self) {
         self.productDescription = [json objectForKey:@"description"];
-        self.productId = [json objectForKey:@"t2idt2IdVal"];
+        self.productId = [json objectForKey:@"t2IdVal"];
         self.productVariantBlob = [json objectForKey:@"variation"];
         self.productImageName = [json objectForKey:@"primaryImage"];
     }
