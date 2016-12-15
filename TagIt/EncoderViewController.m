@@ -17,7 +17,9 @@
 #import <EPCEncoder/Converter.h>      // To convert to binary for comparison
 #import "RfidSdkFactory.h"            // Zebra reader
 #import "SerialNumberGenerator.h"
-#import "TcinResolverService.h"
+#import "ProductResolverService.h"
+#import "ProductSelectViewController.h"
+#import "Product.h"
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
@@ -69,6 +71,16 @@
 @end
 
 @implementation EncoderViewController
+
+#pragma mark custom setters
+
+- (void)setProduct:(Product *)input {
+    product = input;
+    [self setNewTCIN:product.productId];
+}
+
+@synthesize product;
+@synthesize products;
 
 #define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:0.65]
 
@@ -724,21 +736,21 @@
         return;
     }
 
-    [TcinResolverService getTcinWithBarcode:upc andCompletion:^(NSError *error, NSArray *tcins){
+    [ProductResolverService getT2idWithBarcode:upc andCompletion:^(NSError *error, NSArray *productList){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (error) {
-                [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the TCIN."];
+                [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the T2ID."];
             } else {
-                switch(tcins.count) {
+                switch(productList.count) {
                     case 0:
-                        [self generateAlertWithTitle:@"No TCIN Found" andMessage:@"The item scanned has no TCIN. Try again."];
+                        [self generateAlertWithTitle:@"No T2ID Found" andMessage:@"The item scanned has no T2ID. Try again."];
                         break;
                     case 1:
-                        [self setNewTCIN:[NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]]];
+                        self.product = [productList objectAtIndex:0];
                         break;
                     default:
-                        // TODO: display list of selectable tcins and images and have user select one
-                        [self setNewTCIN:[NSString stringWithFormat:@"%@", [tcins objectAtIndex:0]]];
+                        self.products = productList;
+                        [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
                         break;
                     }
             }
@@ -1157,14 +1169,22 @@
     NSLog(@"Zebra Reader - Event trigger notify: %@\n", ((triggerEvent == SRFID_TRIGGEREVENT_PRESSED)?@"Pressed":@"Released"));
 }
 
-/*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.identifier isEqualToString: @"showTcinSelect"]) {
+        UINavigationController *navController = segue.destinationViewController;
+        ProductSelectViewController *destinationVc = (ProductSelectViewController *)([navController topViewController]);
+
+        destinationVc.delegate = self;
+        destinationVc.products = self.products;
+    }
+}
+
+#pragma mark - <TcinSelectDelegate>
+- (void) selectionMadeWithProduct:(Product *)selectedProduct {
+    self.product = selectedProduct;
+}
 
 @end
