@@ -1,5 +1,5 @@
 //
-//  TcinResolverService.m
+//  ProductResolverService.m
 //  TagIt
 //
 //  Created by Christopher.Olsen on 11/23/16.
@@ -35,7 +35,7 @@
     [request setHTTPMethod:@"POST"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-type"];
     [request setValue:[NSString stringWithFormat:@"%lu", (unsigned long)[postString length]]
-   forHTTPHeaderField:@"Content-length"];
+        forHTTPHeaderField:@"Content-length"];
     [request setHTTPBody:[postString dataUsingEncoding:NSUTF8StringEncoding]];
 
     NSURLSession *session = [NSURLSession sharedSession];
@@ -60,12 +60,16 @@
     NSDictionary *productLookup = [productLookupArray objectAtIndex:0];
     NSArray *t2Ids = [productLookup objectForKey:@"t2Ids"];
 
-    // convert array of NSDictionaries into and array of Products
+    // convert array of NSDictionaries into an array of Products
     NSMutableArray* products = [[NSMutableArray alloc] init];
     for (int i = 0; i < t2Ids.count; i++) {
-        if (![[[t2Ids objectAtIndex:i] objectForKey:@"description"] isEqual: @"not found"]) {
+        
+        
+// TPM No, not found doesn't mean Donny's code didn't create a temporary one....
+//        if (![[[t2Ids objectAtIndex:i] objectForKey:@"description"] isEqual: @"not found"]) {
+// TPM However, there is a bug in Donny's coee and it is creating and returning duplicate T2IDs, so check for that...
             [products addObject:[[Product alloc] initWithJson:[t2Ids objectAtIndex:i]]];
-        }
+//        }
     }
 
     return products;

@@ -1,5 +1,5 @@
 //
-//  TcinSelectViewController.h
+//  ProductSelectViewController.h
 //  TagIt
 //
 //  Created by Christopher.Olsen on 11/28/16.

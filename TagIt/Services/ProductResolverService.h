@@ -1,5 +1,5 @@
 //
-//  TcinResolverService.h
+//  ProductResolverService.h
 //  TagIt
 //
 //  Created by Christopher.Olsen on 11/23/16.

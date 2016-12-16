@@ -1,5 +1,5 @@
 //
-//  TcinTableViewCell.h
+//  ProductTableViewCell.h
 //  TagIt
 //
 //  Created by Christopher.Olsen on 12/8/16.
@@ -19,6 +19,6 @@
 
 - (IBAction)moreInfo:(id)sender;
 
-- (void)setupCellWithDescription:(NSString *)description andId:(NSString *)tcin andImage:(UIImage *) image;
+- (void)setupCellWithDescription:(NSString *)description andId:(NSString *)t2id andImage:(UIImage *)image;
 
 @end

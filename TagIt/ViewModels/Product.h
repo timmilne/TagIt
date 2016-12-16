@@ -15,7 +15,7 @@
 @property (nonatomic) NSString *productId;
 @property (nonatomic) NSString *productVariantBlob;
 @property (nonatomic) NSString *productImageName;
-@property (nonatomic) UIImage *productImage;
+@property (nonatomic) UIImage  *productImage;
 
 @property (nonatomic, weak) id <ProductDelegate> delegate;
 

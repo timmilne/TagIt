@@ -12,21 +12,21 @@
 //  http://compass.motorolasolutions.com
 
 #import "EncoderViewController.h"
-#import <AVFoundation/AVFoundation.h> // Barcode capture tools
-#import <EPCEncoder/EPCEncoder.h>     // To encode the scanned barcode for comparison
-#import <EPCEncoder/Converter.h>      // To convert to binary for comparison
-#import "RfidSdkFactory.h"            // Zebra reader
-#import "SerialNumberGenerator.h"
-#import "ProductResolverService.h"
-#import "ProductSelectViewController.h"
-#import "Product.h"
+#import <AVFoundation/AVFoundation.h>   // Barcode capture tools
+#import <EPCEncoder/EPCEncoder.h>       // To encode the scanned barcode for comparison
+#import <EPCEncoder/Converter.h>        // To convert to binary for comparison
+#import "RfidSdkFactory.h"              // Zebra reader
+#import "SerialNumberGenerator.h"       // To generate serial numbers
+#import "ProductResolverService.h"      // To look up a product via UPC barcode
+#import "ProductSelectViewController.h" // To select one of more than one product is returned
+#import "Product.h"                     // The data model for the product info
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
     __weak IBOutlet UILabel         *_upcLbl;
-    __weak IBOutlet UILabel         *_tcinLbl;
+    __weak IBOutlet UILabel         *_t2idLbl;
     __weak IBOutlet UITextField     *_upcFld;
-    __weak IBOutlet UITextField     *_tcinFld;
+    __weak IBOutlet UITextField     *_t2idFld;
     __weak IBOutlet UIBarButtonItem *_resetBtn;
     __weak IBOutlet UIBarButtonItem *_encodeBtn;
     __weak IBOutlet UIImageView     *_successImg;
@@ -36,7 +36,7 @@
     __weak IBOutlet UISwitch        *_scanReadManualSwt;
     __weak IBOutlet UILabel         *_versionLbl;
     
-    BOOL                            _tcinFound;
+    BOOL                            _t2idFound;
     BOOL                            _rfidFound;
     BOOL                            _encoding;
     BOOL                            _tagEncoded;
@@ -76,7 +76,7 @@
 
 - (void)setProduct:(Product *)input {
     product = input;
-    [self setNewTCIN:product.productId];
+    [self setNewT2ID:product.productId];
 }
 
 @synthesize product;
@@ -97,13 +97,13 @@
     _oldEPC = [[NSMutableString alloc] init];
     _newEPC = [[NSMutableString alloc] init];
     _lastDetectionString = [[NSMutableString alloc] init];
-    _tcinFound = FALSE;
+    _t2idFound = FALSE;
     _rfidFound = FALSE;
     _defaultBackgroundColor = UIColorFromRGB(0x000000);
     
     // Set the label background colors
     _upcLbl.backgroundColor  = [UIColor colorWithWhite:0.15 alpha:0.65];
-    _tcinLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
+    _t2idLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
     
 // TPM: The barcode scanner example built the UI from scratch.  This made it easier to deal with all
 // the settings programatically, so I've continued with that here...
@@ -172,9 +172,9 @@
     
     // Bring the input views to the front
     [self.view bringSubviewToFront:_upcLbl];
-    [self.view bringSubviewToFront:_tcinLbl];
+    [self.view bringSubviewToFront:_t2idLbl];
     [self.view bringSubviewToFront:_upcFld];
-    [self.view bringSubviewToFront:_tcinFld];
+    [self.view bringSubviewToFront:_t2idFld];
     
     // Pop the subviews to the front of the preview view
     [self.view bringSubviewToFront:_highlightView];
@@ -256,7 +256,7 @@
  */
 - (IBAction)reset:(id)sender {
     // Reset all controls and variables
-    _tcinFound = FALSE;
+    _t2idFound = FALSE;
     _rfidFound = FALSE;
     _encodeBtn.enabled = FALSE;
     _encoding = FALSE;
@@ -265,7 +265,7 @@
     [self.view setBackgroundColor:_defaultBackgroundColor];
     
     _upcFld.text = @"";
-    _tcinFld.text = @"";
+    _t2idFld.text = @"";
     
     _barcodeLbl.text = @"Barcode: (scanning for barcodes)";
     _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
@@ -576,7 +576,7 @@
             // All the rest are UPC or EAN barcodes
             else {
                 // Assume false until verified
-                _tcinFound = FALSE;
+                _t2idFound = FALSE;
                 
                 // Grab the barcode
                 NSString *upc;
@@ -586,7 +586,7 @@
                 if (upc.length == 13) upc = [upc substringFromIndex:1];
                 if (upc.length == 14) upc = [upc substringFromIndex:2];
                 
-                // All T2 backroom tags will encode the TCIN in GIAI format.
+                // All T2 backroom tags will encode the T2ID (TCIN) in GIAI format.
                 if ((upc.length == 12) || (upc.length == 14)) {
                     
                     // For scanReadEncode mode...
@@ -618,8 +618,8 @@
                     // Set the interface
                     [_upcFld setText:upc];
                     
-                    // The UPC was updated, lookup a new TCIN and serial number
-                    [self lookupTCIN:upc];
+                    // The UPC was updated, lookup a new T2ID and serial number
+                    [self lookupT2ID:upc];
 
                     // Log the read barcode
                     NSLog(@"\nBar code read read: %@\n", upc);
@@ -630,7 +630,7 @@
                     
                     _barcodeLbl.text = @"Barcode: unsupported barcode";
                     _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC0000);
-                    _tcinFound = FALSE;
+                    _t2idFound = FALSE;
                     
                     // Log the unsupported barcode
                     NSLog(@"\nUnsupported barcode: %@\n", upc);
@@ -642,7 +642,7 @@
         else {
             _barcodeLbl.text = @"Barcode: (scanning for barcodes)";
             _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-            _tcinFound = FALSE;
+            _t2idFound = FALSE;
             NSLog(@"\nBarcode: Empty detection string??\n");
         }
     }
@@ -673,13 +673,13 @@
 - (IBAction)update:(id)sender {
     
     NSString *upc  = [_upcFld text];
-    NSString *tcin = [_tcinFld text];
+    NSString *t2id = [_t2idFld text];
     
     // New input data
     _successImg.hidden = TRUE;
     _failImg.hidden = TRUE;
  
-    // If the UPC was manually updated, force a TCIN lookup
+    // If the UPC was manually updated, force a T2ID lookup
     if ([sender isEqual:_upcFld]) {
         // The upc should be 12 or 14 digits
         if ([upc length] > 14) {
@@ -687,18 +687,18 @@
             [_upcFld setText:upc];
         }
         
-        // New upc, look up the TCIN
-        [self lookupTCIN:[_upcFld text]];
+        // New upc, look up the T2ID
+        [self lookupT2ID:[_upcFld text]];
     }
     else {
-        // The TCIN must be exactly 10 digits
-        if ([tcin length] > 10) {
-            tcin = [tcin substringToIndex:10];
-            [_tcinFld setText:tcin];
+        // The T2ID must be exactly 10 digits
+        if ([t2id length] > 10) {
+            t2id = [t2id substringToIndex:10];
+            [_t2idFld setText:t2id];
         }
         
-        // Set the TCIN
-        [self setNewTCIN:tcin];
+        // Set the T2ID
+        [self setNewT2ID:t2id];
     }
     
     [self updateAll];
@@ -717,14 +717,14 @@
 }
 
 /*!
- * @discussion Lookup the TCIN from the UPC
+ * @discussion Lookup the T2ID from the UPC
  * @param upc code to lookup
  */
-- (void)lookupTCIN:(NSString*)upc {
+- (void)lookupT2ID:(NSString*)upc {
 
-    // Begin by clearing out any previous TCIN
-    [_tcinFld setText:@""];
-    _tcinFound = FALSE;
+    // Begin by clearing out any previous T2ID
+    [_t2idFld setText:@""];
+    _t2idFound = FALSE;
 
     if ([upc length] == 14 || [upc length] == 12) {
         _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", upc];
@@ -750,7 +750,7 @@
                         break;
                     default:
                         self.products = productList;
-                        [self performSegueWithIdentifier:@"showTcinSelect" sender:nil];
+                        [self performSegueWithIdentifier:@"showProductSelect" sender:nil];
                         break;
                     }
             }
@@ -759,26 +759,26 @@
 }
 
 /*!
- * @discussion Set the new TCIN in the interface.
- * @param tcin to set
+ * @discussion Set the new T2ID in the interface.
+ * @param t2id to set
  */
-- (void) setNewTCIN:(NSString *)tcin {
-    // The TCIN is ready
-    if ([tcin length] > 0 ) {
+- (void) setNewT2ID:(NSString *)t2id {
+    // The T2ID is ready
+    if ([t2id length] > 0 ) {
 
-        // The TCIN must be exactly 10 digits
-        for (int i=(int)[tcin length]; i<10; i++) {
-            tcin = [NSString stringWithFormat:@"0%@", tcin];
+        // The T2ID must be exactly 10 digits
+        for (int i=(int)[t2id length]; i<10; i++) {
+            t2id = [NSString stringWithFormat:@"0%@", t2id];
         }
 
-        [_tcinFld setText:tcin];
-        _tcinFound = TRUE;
+        [_t2idFld setText:t2id];
+        _t2idFound = TRUE;
 
         // Update the EPCEncoder object
-        // All T2 backroom tags will encode the TCIN in GIAI format.
-        [_encode withTCIN:[_tcinFld text] ser:[self newSerial]];
+        // All T2 backroom tags will encode the T2ID (TCIN) in GIAI format.
+        [_encode withTCIN:[_t2idFld text] ser:[self newSerial]];
 
-        _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
+        _barcodeLbl.text = [NSString stringWithFormat:@"T2ID: %@", [_t2idFld text]];
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
         
         // Ok, in the Encode modes, check if we are ready
@@ -788,14 +788,14 @@
     }
     // Or for some reason it is not...
     else {
-        [self generateAlertWithTitle:@"No TCIN Found" andMessage:@"The item scanned has no TCIN. Try again."];
-        _tcinFound = FALSE;
+        [self generateAlertWithTitle:@"No T2ID Found" andMessage:@"The item scanned has no T2ID. Try again."];
+        _t2idFound = FALSE;
     }
 }
 
 /*!
  * @discussion Popup an alert.
- * I've avoided blocking calls, as the logic flow is normally self correcting.  But a missing TCIN is a showstopper...
+ * I've avoided blocking calls, as the logic flow is normally self correcting.  But a missing T2ID is a showstopper...
  * Don't abuse this call.
  * @param title of the popup
  * @param message to popup
@@ -829,8 +829,8 @@
  * @discussion Check for ready to encode - Enable the encode button if all input ready.
  */
 - (void)readyToEncode {
-    // If we have a valid TCIN, an RFID tag, and a reader is connected, we are ready to encode
-    BOOL conditionsMet = (_tcinFound && _rfidFound && ([_oldEPC length] > 0));
+    // If we have a valid T2ID, an RFID tag, and a reader is connected, we are ready to encode
+    BOOL conditionsMet = (_t2idFound && _rfidFound && ([_oldEPC length] > 0));
     
     // If one of the Encode modes is enabled...
     if (((_scanScanEncodeSwt.on == TRUE) || (_scanReadEncodeSwt.on == TRUE)) && conditionsMet) {
@@ -900,14 +900,14 @@
 
 // For debugging only!
 #ifdef DEBUG
-    // Test tag reset: check for one of the special reset TCINs, if found, encode with the reset value
-    if ([[_tcinFld text] isEqual:@"9999999917"]){
+    // Test tag reset: check for one of the special reset T2IDs, if found, encode with the reset value
+    if ([[_t2idFld text] isEqual:@"9999999917"]){
         [_newEPC setString:@"30304035A880C84000366A25"];
     }
-    else if ([[_tcinFld text] isEqual:@"9999999924"]){
+    else if ([[_t2idFld text] isEqual:@"9999999924"]){
         [_newEPC setString:@"30304035A880C84000366A26"];
     }
-    else if ([[_tcinFld text] isEqual:@"9999999931"]){
+    else if ([[_t2idFld text] isEqual:@"9999999931"]){
         [_newEPC setString:@"30304035A880C84000366A27"];
     }
 #endif
@@ -1056,7 +1056,7 @@
         // If the newly read tag has already been encoded, do nothing and keep looking for a different rfid tag to encode.
         // NOTE: _newEPC is ONLY set with a call to beginEncode, called from encode, called from readyToEncode.
         // readyToEncode is called after 1. an RFID read in the second block below, 2. after a new barcode scan, or 3. conditionally after updateAll.
-        // So don't rely on _newEPC being properly set.  Use [_encode giai_hex], which is only set after a new barcode read and call to lookupTCIN.
+        // So don't rely on _newEPC being properly set.  Use [_encode giai_hex], which is only set after a new barcode read and call to lookupT2ID.
         if ([[tagData getTagId] isEqualToString:[_encode giai_hex]]) {
             dispatch_async(dispatch_get_main_queue(),
                            ^{
@@ -1173,7 +1173,7 @@
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    if ([segue.identifier isEqualToString: @"showTcinSelect"]) {
+    if ([segue.identifier isEqualToString: @"showProductSelect"]) {
         UINavigationController *navController = segue.destinationViewController;
         ProductSelectViewController *destinationVc = (ProductSelectViewController *)([navController topViewController]);
 
@@ -1182,7 +1182,8 @@
     }
 }
 
-#pragma mark - <TcinSelectDelegate>
+#pragma mark - <ProductSelectDelegate>
+
 - (void) selectionMadeWithProduct:(Product *)selectedProduct {
     self.product = selectedProduct;
 }

@@ -1,5 +1,5 @@
 //
-//  TcinSelectViewController.m
+//  ProductSelectViewController.m
 //  TagIt
 //
 //  Created by Christopher.Olsen on 11/28/16.
@@ -113,9 +113,9 @@ static NSString * const reuseIdentifier = @"ProductCell";
 
 - (void)productImageLoaded:(NSString *)productId {
     int index = [self findProductIndex:productId];
-    NSArray *indexes = [self.tableView indexPathsForVisibleRows];
+    NSArray *indicies = [self.tableView indexPathsForVisibleRows];
 
-    for (NSIndexPath *indexPath in indexes) {
+    for (NSIndexPath *indexPath in indicies) {
         if (indexPath.row == index) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self.tableView beginUpdates];

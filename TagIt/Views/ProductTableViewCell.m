@@ -1,5 +1,5 @@
 //
-//  TcinTableViewCell.m
+//  ProductTableViewCell.m
 //  TagIt
 //
 //  Created by Christopher.Olsen on 12/8/16.
@@ -27,10 +27,10 @@
     [delegate cellMoreInfoButtonPressed:self.productIdLabel.text];
 }
 
-- (void)setupCellWithDescription:(NSString *)description andId:(NSString *)tcin andImage:(UIImage *) image
+- (void)setupCellWithDescription:(NSString *)description andId:(NSString *)t2id andImage:(UIImage *)image
 {
     self.productDescriptionLabel.text = description;
-    self.productIdLabel.text = tcin;
+    self.productIdLabel.text = t2id;
     self.productImageView.image = image;
 }
 

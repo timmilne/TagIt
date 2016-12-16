@@ -120,7 +120,7 @@
                             <imageView hidden="YES" userInteractionEnabled="NO" alpha="0.64999999999999969" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" image="SuccessImage" translatesAutoresizingMaskIntoConstraints="NO" id="2CW-Cg-w6I">
                                 <rect key="frame" x="88" y="40" width="400" height="400"/>
                             </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.65000000000000002" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TCIN" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hIF-IC-ZvQ">
+                            <label opaque="NO" userInteractionEnabled="NO" alpha="0.65000000000000002" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="T2ID" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hIF-IC-ZvQ">
                                 <rect key="frame" x="16" y="111" width="42" height="31"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="31" id="EoE-5q-jot"/>
@@ -205,19 +205,19 @@
                         <outlet property="_scanReadManualSwt" destination="8AC-j3-gKw" id="shV-95-jIo"/>
                         <outlet property="_scanScanEncodeSwt" destination="uRr-sr-lGq" id="Mkx-5T-q2e"/>
                         <outlet property="_successImg" destination="2CW-Cg-w6I" id="gWY-Vl-pNW"/>
-                        <outlet property="_tcinFld" destination="amE-4b-Mv3" id="T3A-dn-id7"/>
-                        <outlet property="_tcinLbl" destination="hIF-IC-ZvQ" id="AE4-vz-4Pt"/>
+                        <outlet property="_t2idFld" destination="amE-4b-Mv3" id="Vay-rr-ek4"/>
+                        <outlet property="_t2idLbl" destination="hIF-IC-ZvQ" id="ZH3-HP-cU3"/>
                         <outlet property="_upcFld" destination="uWd-ak-3C2" id="Pw0-4e-arY"/>
                         <outlet property="_upcLbl" destination="1jQ-WR-BF2" id="rrB-Ds-sUb"/>
                         <outlet property="_versionLbl" destination="ojf-U7-CMy" id="usn-A5-rZO"/>
-                        <segue destination="gEY-CQ-JOb" kind="presentation" identifier="showTcinSelect" id="XPW-3g-psK"/>
+                        <segue destination="gEY-CQ-JOb" kind="presentation" identifier="showProductSelect" modalTransitionStyle="flipHorizontal" id="XPW-3g-psK"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="P1g-kP-TLw" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1320.7906295754026" y="441.796875"/>
         </scene>
-        <!--Select Tcin-->
+        <!--Select Product-->
         <scene sceneID="zzC-Pl-8Ms">
             <objects>
                 <tableViewController storyboardIdentifier="TcinSelectTableViewController" id="jQd-Ib-YTZ" customClass="ProductSelectViewController" sceneMemberID="viewController">
@@ -231,7 +231,7 @@
                         </connections>
                     </tableView>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="Select Tcin" id="fEf-Bb-k2M"/>
+                    <navigationItem key="navigationItem" title="Select Product" id="fEf-Bb-k2M"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ymx-Gx-zzu" userLabel="First Responder" sceneMemberID="firstResponder"/>

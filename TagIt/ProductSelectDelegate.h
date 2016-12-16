@@ -1,5 +1,5 @@
 //
-//  TcinSelectDelegate.h
+//  ProductSelectDelegate.h
 //  TagIt
 //
 //  Created by Christopher.Olsen on 12/9/16.
