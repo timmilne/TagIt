@@ -12,17 +12,21 @@
 //  http://compass.motorolasolutions.com
 
 #import "EncoderViewController.h"
-#import <AVFoundation/AVFoundation.h> // Barcode capture tools
-#import <EPCEncoder/EPCEncoder.h>     // To encode the scanned barcode for comparison
-#import <EPCEncoder/Converter.h>      // To convert to binary for comparison
-#import "RfidSdkFactory.h"            // Zebra reader
+#import <AVFoundation/AVFoundation.h>   // Barcode capture tools
+#import <EPCEncoder/EPCEncoder.h>       // To encode the scanned barcode for comparison
+#import <EPCEncoder/Converter.h>        // To convert to binary for comparison
+#import "RfidSdkFactory.h"              // Zebra reader
+#import "SerialNumberGenerator.h"       // To generate serial numbers
+#import "ProductResolverService.h"      // To look up a product via UPC barcode
+#import "ProductSelectViewController.h" // To select one of more than one product is returned
+#import "Product.h"                     // The data model for the product info
 
 @interface EncoderViewController ()<AVCaptureMetadataOutputObjectsDelegate, srfidISdkApiDelegate>
 {
     __weak IBOutlet UILabel         *_upcLbl;
-    __weak IBOutlet UILabel         *_tcinLbl;
+    __weak IBOutlet UILabel         *_t2idLbl;
     __weak IBOutlet UITextField     *_upcFld;
-    __weak IBOutlet UITextField     *_tcinFld;
+    __weak IBOutlet UITextField     *_t2idFld;
     __weak IBOutlet UIBarButtonItem *_resetBtn;
     __weak IBOutlet UIBarButtonItem *_encodeBtn;
     __weak IBOutlet UIImageView     *_successImg;
@@ -30,9 +34,11 @@
     __weak IBOutlet UISwitch        *_scanScanEncodeSwt;
     __weak IBOutlet UISwitch        *_scanReadEncodeSwt;
     __weak IBOutlet UISwitch        *_scanReadManualSwt;
+    __weak IBOutlet UILabel         *_productDescLbl;
+    __weak IBOutlet UIImageView     *_productImg;
     __weak IBOutlet UILabel         *_versionLbl;
     
-    BOOL                            _tcinFound;
+    BOOL                            _t2idFound;
     BOOL                            _rfidFound;
     BOOL                            _encoding;
     BOOL                            _tagEncoded;
@@ -54,7 +60,6 @@
     UIProgressView                  *_batteryLifeView;
     
     EPCEncoder                      *_encode;
-    Converter                       *_convert;
     
     id <srfidISdkApi>               _rfidSdkApi;
     int                             _zebraReaderID;
@@ -69,6 +74,16 @@
 
 @implementation EncoderViewController
 
+#pragma mark custom setters
+
+- (void)setProduct:(Product *)input {
+    product = input;
+    [self setNewT2ID:product.productId];
+}
+
+@synthesize product;
+@synthesize products;
+
 #define UIColorFromRGB(rgbValue) [UIColor colorWithRed:((float)((rgbValue & 0xFF0000) >> 16))/255.0 green:((float)((rgbValue & 0xFF00) >> 8))/255.0 blue:((float)(rgbValue & 0xFF))/255.0 alpha:0.65]
 
 - (void)viewDidLoad {
@@ -81,17 +96,16 @@
     
     // Initialize variables
     _encode = [EPCEncoder alloc];
-    _convert = [Converter alloc];
     _oldEPC = [[NSMutableString alloc] init];
     _newEPC = [[NSMutableString alloc] init];
     _lastDetectionString = [[NSMutableString alloc] init];
-    _tcinFound = FALSE;
+    _t2idFound = FALSE;
     _rfidFound = FALSE;
     _defaultBackgroundColor = UIColorFromRGB(0x000000);
     
     // Set the label background colors
     _upcLbl.backgroundColor  = [UIColor colorWithWhite:0.15 alpha:0.65];
-    _tcinLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
+    _t2idLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
     
 // TPM: The barcode scanner example built the UI from scratch.  This made it easier to deal with all
 // the settings programatically, so I've continued with that here...
@@ -160,9 +174,9 @@
     
     // Bring the input views to the front
     [self.view bringSubviewToFront:_upcLbl];
-    [self.view bringSubviewToFront:_tcinLbl];
+    [self.view bringSubviewToFront:_t2idLbl];
     [self.view bringSubviewToFront:_upcFld];
-    [self.view bringSubviewToFront:_tcinFld];
+    [self.view bringSubviewToFront:_t2idFld];
     
     // Pop the subviews to the front of the preview view
     [self.view bringSubviewToFront:_highlightView];
@@ -172,6 +186,8 @@
     [self.view bringSubviewToFront:_batteryLifeView];
     [self.view bringSubviewToFront:_successImg];
     [self.view bringSubviewToFront:_failImg];
+    [self.view bringSubviewToFront:_productDescLbl];
+    [self.view bringSubviewToFront:_productImg];
     
     // Only the switches change this state
     [_scanScanEncodeSwt setOn:TRUE];
@@ -203,15 +219,23 @@
     switch ((int)orientation) {
         case UIInterfaceOrientationPortrait:
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
+            _productDescLbl.frame   = CGRectMake(self.view.bounds.size.width, self.view.bounds.size.height - 170, 199, 31);
+            _productImg.frame       = CGRectMake(self.view.bounds.size.width, self.view.bounds.size.height - 134, 90, 90);
             break;
         case UIInterfaceOrientationPortraitUpsideDown:
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
+            _productDescLbl.frame   = CGRectMake(self.view.bounds.size.width, self.view.bounds.size.height - 170, 199, 31);
+            _productImg.frame       = CGRectMake(self.view.bounds.size.width, self.view.bounds.size.height - 134, 90, 90);
             break;
         case UIInterfaceOrientationLandscapeLeft:
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
+            _productDescLbl.frame   = CGRectMake(self.view.bounds.size.width - 225, self.view.bounds.size.height - 170, 199, 31);
+            _productImg.frame       = CGRectMake(self.view.bounds.size.width - 112, self.view.bounds.size.height - 134, 90, 90);
             break;
         case UIInterfaceOrientationLandscapeRight:
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
+            _productDescLbl.frame   = CGRectMake(self.view.bounds.size.width - 225, self.view.bounds.size.height - 170, 199, 31);
+            _productImg.frame       = CGRectMake(self.view.bounds.size.width - 112, self.view.bounds.size.height - 134, 90, 90);
             break;
     }
 }
@@ -244,7 +268,7 @@
  */
 - (IBAction)reset:(id)sender {
     // Reset all controls and variables
-    _tcinFound = FALSE;
+    _t2idFound = FALSE;
     _rfidFound = FALSE;
     _encodeBtn.enabled = FALSE;
     _encoding = FALSE;
@@ -253,7 +277,7 @@
     [self.view setBackgroundColor:_defaultBackgroundColor];
     
     _upcFld.text = @"";
-    _tcinFld.text = @"";
+    _t2idFld.text = @"";
     
     _barcodeLbl.text = @"Barcode: (scanning for barcodes)";
     _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
@@ -263,8 +287,10 @@
     _batteryLifeView.progress = 0.;
     
     // Hide the result images (treat these different for landscape mode)
-    _successImg.hidden = TRUE;
-    _failImg.hidden = TRUE;
+    _successImg.hidden      = TRUE;
+    _failImg.hidden         = TRUE;
+    _productDescLbl.hidden  = TRUE;
+    _productImg.hidden      = TRUE;
     
     // If scanScanEncode is enabled, reset these differently
     if (_scanScanEncodeSwt.on == TRUE) {
@@ -564,7 +590,7 @@
             // All the rest are UPC or EAN barcodes
             else {
                 // Assume false until verified
-                _tcinFound = FALSE;
+                _t2idFound = FALSE;
                 
                 // Grab the barcode
                 NSString *upc;
@@ -574,7 +600,7 @@
                 if (upc.length == 13) upc = [upc substringFromIndex:1];
                 if (upc.length == 14) upc = [upc substringFromIndex:2];
                 
-                // All T2 backroom tags will encode the TCIN in GIAI format.
+                // All T2 backroom tags will encode the T2ID (TCIN) in GIAI format.
                 if ((upc.length == 12) || (upc.length == 14)) {
                     
                     // For scanReadEncode mode...
@@ -606,8 +632,8 @@
                     // Set the interface
                     [_upcFld setText:upc];
                     
-                    // The UPC was updated, lookup a new TCIN and serial number
-                    [self lookupTCIN:upc];
+                    // The UPC was updated, lookup a new T2ID and serial number
+                    [self lookupT2ID:upc];
 
                     // Log the read barcode
                     NSLog(@"\nBar code read read: %@\n", upc);
@@ -618,7 +644,7 @@
                     
                     _barcodeLbl.text = @"Barcode: unsupported barcode";
                     _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC0000);
-                    _tcinFound = FALSE;
+                    _t2idFound = FALSE;
                     
                     // Log the unsupported barcode
                     NSLog(@"\nUnsupported barcode: %@\n", upc);
@@ -630,7 +656,7 @@
         else {
             _barcodeLbl.text = @"Barcode: (scanning for barcodes)";
             _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-            _tcinFound = FALSE;
+            _t2idFound = FALSE;
             NSLog(@"\nBarcode: Empty detection string??\n");
         }
     }
@@ -656,17 +682,18 @@
 
 /*!
  * @discussion Update the interface - All the edit fields point here, after you end the edit and hit return.
+  * @param sender ID of the sender
  */
 - (IBAction)update:(id)sender {
     
     NSString *upc  = [_upcFld text];
-    NSString *tcin = [_tcinFld text];
+    NSString *t2id = [_t2idFld text];
     
     // New input data
     _successImg.hidden = TRUE;
     _failImg.hidden = TRUE;
  
-    // If the UPC was manually updated, force a TCIN lookup
+    // If the UPC was manually updated, force a T2ID lookup
     if ([sender isEqual:_upcFld]) {
         // The upc should be 12 or 14 digits
         if ([upc length] > 14) {
@@ -674,21 +701,18 @@
             [_upcFld setText:upc];
         }
         
-        // New upc, look up the TCIN
-        [self lookupTCIN:[_upcFld text]];
+        // New upc, look up the T2ID
+        [self lookupT2ID:[_upcFld text]];
     }
     else {
-        // The TCIN must be exactly 10 digits
-        if ([tcin length] > 10) {
-            tcin = [tcin substringToIndex:10];
-            [_tcinFld setText:tcin];
+        // The T2ID must be exactly 10 digits
+        if ([t2id length] > 10) {
+            t2id = [t2id substringToIndex:10];
+            [_t2idFld setText:t2id];
         }
-        if ([tcin length] > 0) {
-            for (int i=(int)[tcin length]; i<10; i++) {
-                tcin = [NSString stringWithFormat:@"0%@", tcin];
-                [_tcinFld setText:tcin];
-            }
-        }
+        
+        // Set the T2ID
+        [self setNewT2ID:t2id];
     }
     
     [self updateAll];
@@ -706,13 +730,16 @@
     if (_scanReadManualSwt.on == TRUE) [self readyToEncode];
 }
 
-- (void)lookupTCIN:(NSString*)upc {
-    
-    // Begin by clearing out any previous TCIN
-    NSString *tcin = @"";
-    [_tcinFld setText:tcin];
-    _tcinFound = FALSE;
-    
+/*!
+ * @discussion Lookup the T2ID from the UPC
+ * @param upc code to lookup
+ */
+- (void)lookupT2ID:(NSString*)upc {
+
+    // Begin by clearing out any previous T2ID
+    [_t2idFld setText:@""];
+    _t2idFound = FALSE;
+
     if ([upc length] == 14 || [upc length] == 12) {
         _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: %@", upc];
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC9900);
@@ -722,79 +749,100 @@
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xCC0000);
         return;
     }
-    
-    
 
-// TBD - Begin RedSky code block - To be implemented
-    
-    // Hit RedSky with the UPC to lookup the associated TCIN
+    [ProductResolverService getT2idWithBarcode:upc andCompletion:^(NSError *error, NSArray *productList){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (error) {
+                [self generateAlertWithTitle:@"API Error" andMessage:@"There was an error resolving the T2ID."];
+            } else {
+                switch(productList.count) {
+                    case 0:
+                        [self generateAlertWithTitle:@"No T2ID Found" andMessage:@"The item scanned has no T2ID. Try again."];
+                        break;
+                    case 1:
+                        self.product = [productList objectAtIndex:0];
+                        break;
+                    default:
+                        self.products = productList;
+                        [self performSegueWithIdentifier:@"showProductSelect" sender:nil];
+                        break;
+                    }
+            }
+        });
+    }];
+}
 
-    // If there is more than one TCIN, popup a dialog and have the user pick one
-    
-    // This method MUST resolve a valid, 10 digit TCIN
-    
-    // Set the TCIN (hard coded for now, but make sure to set it after a successful lookup)
-    tcin = [upc substringToIndex:10];
-    
-// TBD - End RedSky code block
-    
-    
-    
-    
-    // The TCIN is ready
-    if ([tcin length] > 0 ) {
-        
-        // The TCIN must be exactly 10 digits
-        for (int i=(int)[tcin length]; i<10; i++) {
-            tcin = [NSString stringWithFormat:@"0%@", tcin];
-            [_tcinFld setText:tcin];
+/*!
+ * @discussion Set the new T2ID in the interface.
+ * @param t2id to set
+ */
+- (void) setNewT2ID:(NSString *)t2id {
+    // The T2ID is ready
+    if ([t2id length] > 0 ) {
+
+        // The T2ID must be exactly 10 digits
+        for (int i=(int)[t2id length]; i<10; i++) {
+            t2id = [NSString stringWithFormat:@"0%@", t2id];
         }
 
-        [_tcinFld setText:tcin];
-        _tcinFound = TRUE;
-        
+        [_t2idFld setText:t2id];
+        _t2idFound = TRUE;
+
         // Update the EPCEncoder object
-        // All T2 backroom tags will encode the TCIN in GIAI format.
-        [_encode withTCIN:[_tcinFld text] ser:[self newSerial]];
-        
-        _barcodeLbl.text = [NSString stringWithFormat:@"TCIN: %@", [_tcinFld text]];
+        // All T2 backroom tags will encode the T2ID (TCIN) in GIAI format.
+        [_encode withTCIN:[_t2idFld text] ser:[self newSerial]];
+
+        _barcodeLbl.text = [NSString stringWithFormat:@"T2ID: %@", [_t2idFld text]];
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
+        
+        // Set the image and description fields HERE
+        _productDescLbl.text   =  product.productDescription;
+        
+        [ProductResolverService getProductImageWithUrl:product.productImageName withCompletion:^(NSError *error, UIImage *image) {
+            [self productImageLoaded:image];
+        }];
+
+        _productDescLbl.hidden = FALSE;
+        _productImg.hidden     = FALSE;
+        
+        // Ok, in the Encode modes, check if we are ready
+        if (_scanScanEncodeSwt.on == TRUE || _scanReadEncodeSwt.on == TRUE) {
+            [self readyToEncode];
+        }
     }
     // Or for some reason it is not...
     else {
-        _barcodeLbl.text = [NSString stringWithFormat:@"Barcode: (scanning for barcodes)"];
-        _barcodeLbl.backgroundColor = [UIColor colorWithWhite:0.15 alpha:0.65];
-        _tcinFound = FALSE;
+        [self generateAlertWithTitle:@"No T2ID Found" andMessage:@"The item scanned has no T2ID. Try again."];
+        _t2idFound = FALSE;
     }
 }
 
+/*!
+ * @discussion Popup an alert.
+ * I've avoided blocking calls, as the logic flow is normally self correcting.  But a missing T2ID is a showstopper...
+ * Don't abuse this call.
+ * @param title of the popup
+ * @param message to popup
+ */
+- (void) generateAlertWithTitle:(NSString *)title andMessage:(NSString *)message {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:okAction];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+/*!
+ * @discussion Generate a new, randomized, serial number.
+ */
 - (NSString *)newSerial {
-    NSString *ser = @"100000000000001";
-    
-    
-    
-// TBD - Begin Serial Number Generator code block
-    
-    //Replace this with the new serial number generator
-    if ([ser length] > 15) {
-        // GIAI serial number max = 15
-        ser = [ser substringToIndex:15];
-    }
+    unsigned long long seed;
 
-    // The serial number is 15 digits
-    for (int i=(int)[ser length]; i<15; i++) {
-        ser = [NSString stringWithFormat:@"0%@", ser];
+    if (_zebraReaderName.length > 0) {
+        seed = [[_zebraReaderName substringFromIndex:6] longLongValue];
+    } else {
+        seed = 7725272730706;
     }
-    
-    // And should start with '10' to indicate the Commissioning Authority.
-    if (!([[ser substringToIndex:2] isEqualToString:@"10"])) {
-        ser = [NSString stringWithFormat:@"10%@", [ser substringFromIndex:2]];
-    }
-    
-// TBD - End Serial Number Generator code block
-    
-    
-
+    NSString *ser = [SerialNumberGenerator newSerialWithSeed:seed];
     return ser;
 }
 
@@ -805,8 +853,8 @@
  * @discussion Check for ready to encode - Enable the encode button if all input ready.
  */
 - (void)readyToEncode {
-    // If we have a valid TCIN, an RFID tag, and a reader is connected, we are ready to encode
-    BOOL conditionsMet = (_tcinFound && _rfidFound && ([_oldEPC length] > 0));
+    // If we have a valid T2ID, an RFID tag, and a reader is connected, we are ready to encode
+    BOOL conditionsMet = (_t2idFound && _rfidFound && ([_oldEPC length] > 0));
     
     // If one of the Encode modes is enabled...
     if (((_scanScanEncodeSwt.on == TRUE) || (_scanReadEncodeSwt.on == TRUE)) && conditionsMet) {
@@ -876,14 +924,14 @@
 
 // For debugging only!
 #ifdef DEBUG
-    // Test tag reset: check for one of the special reset barcodes, if found, encode with the reset value
-    if ([[_upcFld text] isEqual:@"999999999917"]){
+    // Test tag reset: check for one of the special reset T2IDs, if found, encode with the reset value
+    if ([[_t2idFld text] isEqual:@"9999999917"]){
         [_newEPC setString:@"30304035A880C84000366A25"];
     }
-    else if ([[_upcFld text] isEqual:@"999999999924"]){
+    else if ([[_t2idFld text] isEqual:@"9999999924"]){
         [_newEPC setString:@"30304035A880C84000366A26"];
     }
-    else if ([[_upcFld text] isEqual:@"999999999931"]){
+    else if ([[_t2idFld text] isEqual:@"9999999931"]){
         [_newEPC setString:@"30304035A880C84000366A27"];
     }
 #endif
@@ -1032,7 +1080,7 @@
         // If the newly read tag has already been encoded, do nothing and keep looking for a different rfid tag to encode.
         // NOTE: _newEPC is ONLY set with a call to beginEncode, called from encode, called from readyToEncode.
         // readyToEncode is called after 1. an RFID read in the second block below, 2. after a new barcode scan, or 3. conditionally after updateAll.
-        // So don't rely on _newEPC being properly set.  Use [_encode giai_hex], which is only set after a new barcode read and call to lookupTCIN.
+        // So don't rely on _newEPC being properly set.  Use [_encode giai_hex], which is only set after a new barcode read and call to lookupT2ID.
         if ([[tagData getTagId] isEqualToString:[_encode giai_hex]]) {
             dispatch_async(dispatch_get_main_queue(),
                            ^{
@@ -1145,14 +1193,34 @@
     NSLog(@"Zebra Reader - Event trigger notify: %@\n", ((triggerEvent == SRFID_TRIGGEREVENT_PRESSED)?@"Pressed":@"Released"));
 }
 
-/*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    if ([segue.identifier isEqualToString: @"showProductSelect"]) {
+        UINavigationController *navController = segue.destinationViewController;
+        ProductSelectViewController *destinationVc = (ProductSelectViewController *)([navController topViewController]);
+
+        destinationVc.delegate = self;
+        destinationVc.products = self.products;
+    }
+}
+
+#pragma mark - ProductSelectDelegate
+
+- (void) selectionMadeWithProduct:(Product *)selectedProduct {
+    self.product = selectedProduct;
+}
+
+
+#pragma mark - productImageLoad
+
+- (void)productImageLoaded:(UIImage *)image{
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _productImg.image  = image;
+        _productImg.hidden = FALSE;
+    });
+}
 
 @end

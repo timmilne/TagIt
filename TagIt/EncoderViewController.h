@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ProductSelectDelegate.h"
+#import "Product.h"
 
-@interface EncoderViewController : UIViewController
+@interface EncoderViewController : UIViewController <ProductSelectDelegate>
+
+@property (nonatomic) Product *product;
+@property (nonatomic) NSArray *products;
 
 @end
