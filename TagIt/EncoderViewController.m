@@ -34,6 +34,8 @@
     __weak IBOutlet UISwitch        *_scanScanEncodeSwt;
     __weak IBOutlet UISwitch        *_scanReadEncodeSwt;
     __weak IBOutlet UISwitch        *_scanReadManualSwt;
+    __weak IBOutlet UILabel         *_productDescLbl;
+    __weak IBOutlet UIImageView     *_productImg;
     __weak IBOutlet UILabel         *_versionLbl;
     
     BOOL                            _t2idFound;
@@ -184,6 +186,8 @@
     [self.view bringSubviewToFront:_batteryLifeView];
     [self.view bringSubviewToFront:_successImg];
     [self.view bringSubviewToFront:_failImg];
+    [self.view bringSubviewToFront:_productDescLbl];
+    [self.view bringSubviewToFront:_productImg];
     
     // Only the switches change this state
     [_scanScanEncodeSwt setOn:TRUE];
@@ -215,15 +219,23 @@
     switch ((int)orientation) {
         case UIInterfaceOrientationPortrait:
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
+            _productDescLbl.frame   = CGRectMake(self.view.bounds.size.width, self.view.bounds.size.height - 170, 199, 31);
+            _productImg.frame       = CGRectMake(self.view.bounds.size.width, self.view.bounds.size.height - 134, 90, 90);
             break;
         case UIInterfaceOrientationPortraitUpsideDown:
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortraitUpsideDown];
+            _productDescLbl.frame   = CGRectMake(self.view.bounds.size.width, self.view.bounds.size.height - 170, 199, 31);
+            _productImg.frame       = CGRectMake(self.view.bounds.size.width, self.view.bounds.size.height - 134, 90, 90);
             break;
         case UIInterfaceOrientationLandscapeLeft:
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
+            _productDescLbl.frame   = CGRectMake(self.view.bounds.size.width - 225, self.view.bounds.size.height - 170, 199, 31);
+            _productImg.frame       = CGRectMake(self.view.bounds.size.width - 112, self.view.bounds.size.height - 134, 90, 90);
             break;
         case UIInterfaceOrientationLandscapeRight:
             [_prevLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
+            _productDescLbl.frame   = CGRectMake(self.view.bounds.size.width - 225, self.view.bounds.size.height - 170, 199, 31);
+            _productImg.frame       = CGRectMake(self.view.bounds.size.width - 112, self.view.bounds.size.height - 134, 90, 90);
             break;
     }
 }
@@ -275,8 +287,10 @@
     _batteryLifeView.progress = 0.;
     
     // Hide the result images (treat these different for landscape mode)
-    _successImg.hidden = TRUE;
-    _failImg.hidden = TRUE;
+    _successImg.hidden      = TRUE;
+    _failImg.hidden         = TRUE;
+    _productDescLbl.hidden  = TRUE;
+    _productImg.hidden      = TRUE;
     
     // If scanScanEncode is enabled, reset these differently
     if (_scanScanEncodeSwt.on == TRUE) {
@@ -781,6 +795,16 @@
         _barcodeLbl.text = [NSString stringWithFormat:@"T2ID: %@", [_t2idFld text]];
         _barcodeLbl.backgroundColor = UIColorFromRGB(0xA4CD39);
         
+        // Set the image and description fields HERE
+        _productDescLbl.text   =  product.productDescription;
+        
+        [ProductResolverService getProductImageWithUrl:product.productImageName withCompletion:^(NSError *error, UIImage *image) {
+            [self productImageLoaded:image];
+        }];
+
+        _productDescLbl.hidden = FALSE;
+        _productImg.hidden     = FALSE;
+        
         // Ok, in the Encode modes, check if we are ready
         if (_scanScanEncodeSwt.on == TRUE || _scanReadEncodeSwt.on == TRUE) {
             [self readyToEncode];
@@ -1182,10 +1206,21 @@
     }
 }
 
-#pragma mark - <ProductSelectDelegate>
+#pragma mark - ProductSelectDelegate
 
 - (void) selectionMadeWithProduct:(Product *)selectedProduct {
     self.product = selectedProduct;
+}
+
+
+#pragma mark - productImageLoad
+
+- (void)productImageLoaded:(UIImage *)image{
+    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _productImg.image  = image;
+        _productImg.hidden = FALSE;
+    });
 }
 
 @end

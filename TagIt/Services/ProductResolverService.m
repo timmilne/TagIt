@@ -63,13 +63,7 @@
     // convert array of NSDictionaries into an array of Products
     NSMutableArray* products = [[NSMutableArray alloc] init];
     for (int i = 0; i < t2Ids.count; i++) {
-        
-        
-// TPM No, not found doesn't mean Donny's code didn't create a temporary one....
-//        if (![[[t2Ids objectAtIndex:i] objectForKey:@"description"] isEqual: @"not found"]) {
-// TPM However, there is a bug in Donny's coee and it is creating and returning duplicate T2IDs, so check for that...
-            [products addObject:[[Product alloc] initWithJson:[t2Ids objectAtIndex:i]]];
-//        }
+        [products addObject:[[Product alloc] initWithJson:[t2Ids objectAtIndex:i]]];
     }
 
     return products;
